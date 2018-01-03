@@ -1,21 +1,33 @@
 {
   "name": "2018rawlejuglal.me",
   "version": "0.0.0",
+  "engines": {
+    "node": "8.9.4"
+  },
   "private": false,
   "scripts": {
     "start": "node ./bin/www"
   },
   "dependencies": {
     "body-parser": "~1.18.2",
+    "bootstrap": "4.0.0-beta.3",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "ejs": "~2.5.7",
     "express": "~4.15.5",
+    "gulp": "^4.0.0",
+    "jquery": "^3.2.1",
     "morgan": "~1.9.0",
+    "popper.js": "^1.12.9",
     "serve-favicon": "~2.4.5"
   },
   "description": "Rawle Juglal 2018 Portfolio",
   "main": "./bin/www",
   "author": "Rawle Juglal",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "gulp-notify": "^3.0.0",
+    "request": "^2.83.0",
+    "tape": "^4.8.0"
+  }
 }

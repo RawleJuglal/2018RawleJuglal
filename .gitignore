@@ -1,0 +1,14 @@
+node_modules
+package-lock.json
+yarn.lock
+npm-debug.log
+build/vendor/*
+node-js-getting-started/
+# Local development
+*.env
+*.dev
+.DS_Store
+
+# Docker
+Dockerfile
+docker-compose.yml
