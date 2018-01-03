@@ -1,0 +1,21 @@
+{
+  "name": "2018rawlejuglal.me",
+  "version": "0.0.0",
+  "private": false,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "body-parser": "~1.18.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "ejs": "~2.5.7",
+    "express": "~4.15.5",
+    "morgan": "~1.9.0",
+    "serve-favicon": "~2.4.5"
+  },
+  "description": "Rawle Juglal 2018 Portfolio",
+  "main": "./bin/www",
+  "author": "Rawle Juglal",
+  "license": "MIT"
+}
