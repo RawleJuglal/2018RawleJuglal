@@ -14,4 +14,11 @@ router.get('/bootstrapCSS', function(req, res, next){
   res.sendFile('/app/build/vendor/bootstrap/dist/css/bootstrap.min.css');
 });
 
+router.get('/bootstrapJS', function(req, res, next){
+  res.sendFile('/app/build/vendor/bootstrap/dist/js/bootstrap.min.js');
+});
+
+router.get('/jquery', function(req, res, next){
+  res.sendFile('/app/build/vendor/jquery/dist/jquery.slim.min.js');
+});
 module.exports = router;
