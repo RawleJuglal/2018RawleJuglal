@@ -10,4 +10,8 @@ router.get('/', function(req, res, next) {
   });
 });
 
+router.get('/bootstrapCSS', function(req, res, next){
+  res.sendFile('/app/build/vendor/bootstrap/dist/css/bootstrap.min.css');
+});
+
 module.exports = router;
