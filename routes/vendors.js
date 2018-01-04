@@ -8,7 +8,7 @@ router.get('/', function(req, res, next) {
 
 router.get('/bootstrapCSS', function(req, res, next) {
   var options = {
-    root: __dirname + '/build',
+    root: __dirname + '/build/vendor/bootstrap/dist/css',
     dotfiles: 'deny',
     headers: {
       'x-timestamp': Date.now(),
