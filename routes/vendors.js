@@ -8,7 +8,7 @@ router.get('/', function(req, res, next) {
 
 router.get('/bootstrapCSS', function(req, res, next) {
   var options = {
-    root: '/build/vendor/bootstrap/dist/css',
+    root: __dirname + '/build',
     dotfiles: 'deny',
     headers: {
       'x-timestamp': Date.now(),
@@ -25,7 +25,7 @@ router.get('/bootstrapCSS', function(req, res, next) {
 
 router.get('/jquery', function(req, res, next) {
   var options = {
-    root: '/build/vendor/jquery/dist',
+    root: __dirname + '/build',
     dotfiles: 'deny',
     headers: {
       'x-timestamp': Date.now(),
@@ -42,13 +42,13 @@ router.get('/jquery', function(req, res, next) {
 
   router.get('/bootstrapJS', function(req, res, next) {
     var options = {
-      root: '/build/vendor/bootstrap/dist/js',
-      dotfiles: 'deny',
-      headers: {
-        'x-timestamp': Date.now(),
-        'x-sent':true
-      }
-    };
+    root: __dirname + '/build',
+    dotfiles: 'deny',
+    headers: {
+      'x-timestamp': Date.now(),
+      'x-sent':true
+    }
+  };
 
     res.sendFile('bootstrap.min.js', options, function(err){
       if(err){
