@@ -8,7 +8,7 @@ router.get('/', function(req, res, next) {
 
 router.get('/bootstrapCSS', function(req, res, next) {
   var options = {
-    root: __dirname + '/build/vendor/bootstrap/dist/css',
+    root: __dirname + '/build',
     dotfiles: 'deny',
     headers: {
       'x-timestamp': Date.now(),
@@ -16,7 +16,7 @@ router.get('/bootstrapCSS', function(req, res, next) {
     }
   };
 
-  res.sendFile('bootstrap.min.css', options, function(err){
+  res.sendFile('vendor/bootstrap/dist/css/bootstrap.min.css', options, function(err){
     if(err){
       next(err);
     }
