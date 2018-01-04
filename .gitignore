@@ -2,7 +2,6 @@ node_modules/
 package-lock.json
 yarn.lock
 npm-debug.log
-build/vendor/*
 node-js-getting-started/
 # Local development
 *.env
