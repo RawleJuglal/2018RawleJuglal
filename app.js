@@ -5,20 +5,29 @@ let logger = require('morgan');
 let cookieParser = require('cookie-parser');
 let bodyParser = require('body-parser');
 let mongoose = require('mongoose');
+let passport = require('passport');
 let mongoUri = '';
+
+require('./models/Users');
+require('./models/Webprojects');
+require('./models/Filmprojects');
+require('./config/passport');
+
+let users = require('./api/users');
+let webprojects = require('./api/webprojects');
+let filmprojects = require('./api/filmprojects');
 let index = require('./routes/index');
-let users = require('./routes/users');
 let vendors = require('./routes/vendors');
 
 let app = express();
 
 if (!process.env.MONGODB_URI) {
-  mongoUri = 'mongodb://heroku_qcfnlfsn:shmrtnogm81jjotr8j5hs6srn8@ds125556.mlab.com:25556/heroku_qcfnlfsn'
+  mongoUri = 'mongodb://heroku_4bgk8s46:98rl2rfojlen6bnvicco7va92k@ds141657.mlab.com:41657/heroku_4bgk8s46'
 } else {
   mongoUri = process.env.MONGODB_URI
 }
 
-mongoose.connect(mongoUri)
+mongoose.connect(mongoUri);
 
 let db = mongoose.connection
 
@@ -41,13 +50,16 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(passport.initialize());
 
 
 
 
 app.use('/', index);
-app.use('/users', users);
 app.use('/lib', vendors);
+app.use('/users', users);
+app.use('/webprojects', webprojects);
+app.use('/filmprojects', filmprojects);
 
 
 // catch 404 and forward to error handler
