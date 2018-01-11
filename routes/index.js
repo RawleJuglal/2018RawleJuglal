@@ -4,7 +4,7 @@ var router = express.Router();
 /* GET home page. */
 router.get('/', function(req, res, next) {
   var options = {
-  	root: __dirname + '/build',
+  	root: __dirname + '/public',
   	dotfiles: 'deny',
   	headers: {
   		'x-timestamp': Date.now(),

@@ -9,6 +9,8 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "angular": "^1.6.8",
+    "angular-ui-router": "^1.0.3",
     "body-parser": "~1.18.2",
     "bootstrap": "4.0.0-beta.3",
     "cookie-parser": "~1.4.3",
@@ -16,7 +18,6 @@
     "ejs": "~2.5.7",
     "express": "~4.15.5",
     "express-jwt": "^5.3.0",
-    "gulp": "^4.0.0",
     "jquery": "^3.2.1",
     "jsonwebtoken": "^8.1.0",
     "mongoose": "^5.0.0-rc2",
@@ -31,8 +32,20 @@
   "author": "Rawle Juglal",
   "license": "MIT",
   "devDependencies": {
-    "gulp-notify": "^3.0.0",
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babelify": "^8.0.0",
+    "browser-sync": "^2.23.5",
+    "browserify": "^15.0.0",
+    "browserify-ngannotate": "^2.0.0",
+    "gulp": "^3.9.1",
+    "gulp-angular-templatecache": "^2.2.0",
+    "gulp-jshint": "^2.1.0",
+    "gulp-notify": "^3.1.0",
+    "gulp-rename": "^1.2.2",
+    "jshint": "^2.9.5",
     "request": "^2.83.0",
-    "tape": "^4.8.0"
+    "tape": "^4.8.0",
+    "vinyl-source-stream": "^2.0.0"
   }
 }
