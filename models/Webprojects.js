@@ -6,7 +6,7 @@ let WebProjectSchema = new mongoose.Schema({
     endDate: Date,
     description: String,
     linkToWeb: String,
-    linktoGithub: String,
+    linkToGithub: String,
     listOfTechnologies: []
 }, {collection:'WebProjects'});
 

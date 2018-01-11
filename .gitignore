@@ -7,6 +7,7 @@ node-js-getting-started/
 *.env
 *.dev
 .DS_Store
+Design/
 
 # Docker
 Dockerfile

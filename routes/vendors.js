@@ -21,4 +21,6 @@ router.get('/bootstrapJS', function(req, res, next){
 router.get('/jquery', function(req, res, next){
   res.sendFile('/app/build/vendor/jquery/dist/jquery.slim.min.js');
 });
+
+
 module.exports = router;
