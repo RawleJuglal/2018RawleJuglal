@@ -1,10 +1,37 @@
+html {
+  font-size: 1rem;
+}
+
+@include media-breakpoint-up(sm) {
+  html {
+    font-size: 1.2rem;
+  }
+}
+
+@include media-breakpoint-up(md) {
+  html {
+    font-size: 1.4rem;
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  html {
+    font-size: 1.6rem;
+  }
+}
+
 body {
   font: 16px 'Reenie Beanie', cursive;
-  color:black;
+  color:#1A2930;
 }
 
 a {
-  color: #00B7FF;
+  color: #C5C1C0;
+}
+
+.content{
+	margin-top: 80px;
+	min-height: calc(100vh - 68px);
 }
 
 .screen{
@@ -51,7 +78,6 @@ a {
 
 /* Home Styles */
 .jumbotron{
-	margin-top: 56px;
 	background-image: url(https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,h_242,q_100,w_320/v1515706713/jumbotron-bg_julxzs.png);
 	background-size: cover;
 	background-repeat: no-repeat;
@@ -84,3 +110,54 @@ a {
 		background-image: url(https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,h_242,q_100,w_1200/v1515706713/jumbotron-bg_julxzs.png);
 	}
 }
+
+/*Web Projects Component Styles*/
+.webProjectBox{
+	border:1px solid #1A2930;
+}
+
+.cal-glyph{
+	width:32px;
+	height:32px;
+}
+
+.view-link:hover{
+	transition: color 2s ease;	
+	color:#F7CE3E!important;
+}
+
+.nav-link.disabled{
+	color:#0A1612;
+}
+
+.technologies:hover{
+	animation:rubberBand 1s;
+}
+
+@media (min-width: 576px) { 
+
+}
+
+/* Medium devices (tablets, 768px and up)*/
+@media (min-width: 768px) {
+	.web-bullet{
+		width:150px;
+	}
+
+/* Large devices (desktops, 992px and up)*/
+@media (min-width: 992px) {
+
+}
+
+/* Extra large devices (large desktops, 1200px and up)*/
+@media (min-width: 1200px) {
+	.cal-glyph{
+		width:64px;
+		height:64px;
+	}
+}
+/*---------------------------*/
+/*Footer Styles*/
+
+/*Login Styles*/
+

@@ -35,11 +35,11 @@ router.post('/login', function(req, res, next){
 
 	passport.authenticate('local', function(err, user, info){
 		if(err){return next(err);}
-
 		if(user){
+
 			return res.json({success:true, message:'This user is authenticated', token:user.generateJWT()});
 		} else {
-			return res.sendStatus(401).json(info);
+			return res.status(400).send(info);
 		}
 	})(req, res, next);
 });

@@ -9,12 +9,20 @@ import './config/app.templates';
 
 import './layout';
 import './home';
+import './components';
+import './services';
+import './login';
+import './dashboard';
 
 const requires = [
 	'ui.router', 
 	'templates',
+	'app.services',
 	'app.layout',
-	'app.home'	
+	'app.home',
+	'app.components',
+	'app.login',
+	'app.dashboard'	
 ];
 
 window.app = angular.module('app', requires);
@@ -24,5 +32,5 @@ angular.module('app').config(appConfig);
 angular.module('app').run(appRun);
 
 angular.bootstrap(document, ['app'], {
-	strictDi:true
+	strictDi:false
 });

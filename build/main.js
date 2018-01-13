@@ -44832,9 +44832,17 @@ require('./layout');
 
 require('./home');
 
+require('./components');
+
+require('./services');
+
+require('./login');
+
+require('./dashboard');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var requires = ['ui.router', 'templates', 'app.layout', 'app.home'];
+var requires = ['ui.router', 'templates', 'app.services', 'app.layout', 'app.home', 'app.components', 'app.login', 'app.dashboard'];
 
 window.app = _angular2.default.module('app', requires);
 
@@ -44843,10 +44851,89 @@ _angular2.default.module('app').config(_app4.default);
 _angular2.default.module('app').run(_app6.default);
 
 _angular2.default.bootstrap(document, ['app'], {
-	strictDi: true
+	strictDi: false
 });
 
-},{"./config/app.config":90,"./config/app.constants":91,"./config/app.run":92,"./config/app.templates":93,"./home":96,"./layout":99,"angular":88,"angular-ui-router":76}],90:[function(require,module,exports){
+},{"./components":91,"./config/app.config":93,"./config/app.constants":94,"./config/app.run":95,"./config/app.templates":96,"./dashboard":99,"./home":102,"./layout":105,"./login":106,"./services":109,"angular":88,"angular-ui-router":76}],90:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var FilmListCtrl = function FilmListCtrl(AppConstants, $scope) {
+  'ngInject';
+
+  _classCallCheck(this, FilmListCtrl);
+
+  this.appName = AppConstants.appName;
+};
+FilmListCtrl.$inject = ["AppConstants", "$scope"];
+
+var FilmList = {
+  controller: FilmListCtrl,
+  templateUrl: 'components/film-list.html'
+};
+
+exports.default = FilmList;
+
+},{}],91:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _angular = require('angular');
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _weblist = require('./weblist.component');
+
+var _weblist2 = _interopRequireDefault(_weblist);
+
+var _filmlist = require('./filmlist.component');
+
+var _filmlist2 = _interopRequireDefault(_filmlist);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var componentsModule = _angular2.default.module('app.components', []);
+
+componentsModule.component('webList', _weblist2.default);
+
+componentsModule.component('filmList', _filmlist2.default);
+
+exports.default = componentsModule;
+
+},{"./filmlist.component":90,"./weblist.component":92,"angular":88}],92:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var WebListCtrl = function WebListCtrl(AppConstants, $scope) {
+  'ngInject';
+
+  _classCallCheck(this, WebListCtrl);
+
+  this.appName = AppConstants.appName;
+};
+WebListCtrl.$inject = ["AppConstants", "$scope"];
+
+var WebList = {
+  controller: WebListCtrl,
+  templateUrl: 'components/web-list.html'
+};
+
+exports.default = WebList;
+
+},{}],93:[function(require,module,exports){
 'use strict';
 
 AppConfig.$inject = ["$httpProvider", "$stateProvider", "$locationProvider", "$urlRouterProvider"];
@@ -44871,7 +44958,7 @@ function AppConfig($httpProvider, $stateProvider, $locationProvider, $urlRouterP
 
 exports.default = AppConfig;
 
-},{}],91:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 (function (__dirname){
 'use strict';
 
@@ -44881,13 +44968,13 @@ Object.defineProperty(exports, "__esModule", {
 var AppConstants = {
 	api: __dirname + '/api',
 	jwtKey: 'jwtToken',
-	appName: 'The Bridge'
+	appName: 'RawleJuglal.me'
 };
 
 exports.default = AppConstants;
 
 }).call(this,"/public\\javascripts\\config")
-},{}],92:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 'use strict';
 
 AppRun.$inject = ["AppConstants", "$rootScope"];
@@ -44916,17 +45003,138 @@ function AppRun(AppConstants, $rootScope) {
 
 exports.default = AppRun;
 
-},{}],93:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 'use strict';
 
 angular.module('templates', []).run(['$templateCache', function ($templateCache) {
-  $templateCache.put('home/home.html', '<div class="jumbotron jumbotron-fluid">\r\n  <div class="container">\r\n    <h1 class="display-4">Fluid jumbotron</h1>\r\n    <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>\r\n  </div>\r\n</div>');
-  $templateCache.put('layout/app-view.html', '<app-header></app-header>\r\n\r\n<div ui-view></div>\r\n\r\n<app-footer></app-footer>');
-  $templateCache.put('layout/footer.html', '<footer>\r\n    <div class="container-fluid">\r\n        <ul class="list-unstyled pt-3">\r\n            <li><a class=\'text-white f6\' ui-sref="app.news">NEWS</a></li>\r\n            <li><a class=\'text-white f6\' ui-sref="app.careers"><h2 class=\'d-none\'>Careers</h2>CAREERS</a></li>\r\n            <li><a class=\'text-white f6\' ui-sref="app.login"><h2 class=\'d-none\'>Login</h2>LOGIN</a></li>\r\n        </ul>\r\n        \r\n        <div class="row text-white f6">\r\n            <div class="col-sm-6 ml-1">\r\n               <span>\r\n                    &copy; {{::$ctrl.date | date:\'yyyy\'}}.\r\n                    THE BRIDGE, LLC ALL RIGHTS RESERVED\r\n                </span> \r\n            </div><!-- col-sm-6-->\r\n            <div class="col-sm-5">\r\n                <span class=\'float-right\'>\r\n                    Developed By: <a class=\'text-white f6\' href="http://www.rawlejuglal.me">rawlejuglal.me</a>.\r\n                </span>\r\n            </div>\r\n        </div><!--End of row -->\r\n        \r\n    </div>\r\n</footer>');
-  $templateCache.put('layout/header.html', '<nav class="navbar fixed-top navbar-expand-md navbar-dark denim-bg">\r\n  <a class="navbar-brand" href="#">\r\n    <img src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515698864/Logo_t0xbvc.png" width="30" height="30" alt="">\r\n  </a>\r\n  </a>\r\n  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">\r\n    <span class="navbar-toggler-icon"></span>\r\n  </button>\r\n\r\n  <div class="collapse navbar-collapse" id="navbarSupportedContent">\r\n    <ul class=\'navbar-nav ml-auto\'>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="">Web Projects</a></li>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="">Film Projects</a></li>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="">Blog</a></li>\r\n    </ul>\r\n  </div>\r\n</nav>');
+  $templateCache.put('components/film-list.html', '<div class=\'container-fluid\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 col-md-6 pt-3 filmProjectBox\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<h2 class=\'sr-only\'>Web Projects</h2>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t<img class=\'web-bullet img-fluid\' src="https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,q_100,w_150/v1515783507/001-ticket_n6dh11.svg">\r\n\t\t\t\t</div><!--End of col-sm-3-->\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<h3 class=\'h2 d-block d-sm-none pt-1\'>Xmas Timelapse</h3>\r\n\t\t\t\t\t<p class=\'display-3 d-none d-sm-block d-md-none\'>Xmas Timelapse</p>\r\n\t\t\t\t\t<p class=\'h1 d-none d-md-block d-lg-none pt-2\'>Xmas Timelapse</p>\r\n\t\t\t\t\t<p class=\'display-4 d-none d-lg-block pt-3\'>Xmas Timelapse</p>\r\n\t\t\t\t</div><!--End of col-sm-9-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<img class=\'cal-glyph\' src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515720530/match_pk0wfk.svg">\r\n\t\t\t\t\t<span class=\'d-inline-block d-xl-none\'>Nov 17 - Dec 17</span>\r\n\t\t\t\t\t<span class=\'h1 d-none d-xl-inline-block\'>Nov 17</span>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<div class=\'col-12 text-center\'>\r\n\t\t\t\t\t<p class=\'d-xl-none\'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\r\n\t\t\t\t\ttempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\r\n\t\t\t\t\tquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\r\n\t\t\t\t\tconsequat. Duis aute irure dolor in reprehenderit in voluptate velit esse\r\n\t\t\t\t\tcillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non\r\n\t\t\t\t\tproident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\r\n\t\t\t\t\t<p class=\'h2 d-none d-xl-block\'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\r\n\t\t\t\t\ttempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\r\n\t\t\t\t\tquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\r\n\t\t\t\t\tconsequat. Duis aute irure dolor in reprehenderit in voluptate velit esse\r\n\t\t\t\t\tcillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non\r\n\t\t\t\t\tproident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\'col-12 col-md-6 pb-3 screen-bg\'>\r\n\t\t\t<p class=\'sr-only\'>Screen Box</p>\r\n\t\t\t<div class="embed-responsive embed-responsive-16by9 mt-5">\r\n\t\t\t  <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/LiSO5_DIx8A" allowfullscreen></iframe>\r\n\t\t\t</div>\r\n\t\t</div><!--marigoldBox-->\r\n\t</div>\r\n</div>');
+  $templateCache.put('components/web-list.html', '<div class=\'container-fluid\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 col-md-6 d-none d-md-block marigold-bg\'>\r\n\t\t\t<p class=\'sr-only\'>Marigold Box</p>\r\n\t\t</div><!--marigoldBox-->\r\n\t\t<div class=\'col-12 col-md-6 pt-3 webProjectBox\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<h2 class=\'sr-only\'>Web Projects</h2>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t<img class=\'web-bullet img-fluid\' src="https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,q_100,w_150/v1515711777/pennant_z0xwyy.svg">\r\n\t\t\t\t</div><!--End of col-sm-3-->\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<h3 class=\'h1 d-block d-sm-none\'>The Bridge</h3>\r\n\t\t\t\t\t<p class=\'display-2 d-none d-sm-block d-md-none\'>The Bridge</p>\r\n\t\t\t\t\t<p class=\'display-4 d-none d-md-block d-lg-none\'>The Bridge</p>\r\n\t\t\t\t\t<p class=\'display-2 d-none d-lg-block\'>The Bridge</p>\r\n\t\t\t\t</div><!--End of col-sm-9-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<img class=\'cal-glyph\' src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515720530/match_pk0wfk.svg">\r\n\t\t\t\t\t<span class=\'d-inline-block d-xl-none\'>Nov 17 - Dec 17</span>\r\n\t\t\t\t\t<span class=\'h1 d-none d-xl-inline-block\'>Nov 17 - Dec 17</span>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<div class=\'col-12 text-center\'>\r\n\t\t\t\t\t<p class=\'d-xl-none\'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\r\n\t\t\t\t\ttempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\r\n\t\t\t\t\tquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\r\n\t\t\t\t\tconsequat. Duis aute irure dolor in reprehenderit in voluptate velit esse\r\n\t\t\t\t\tcillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non\r\n\t\t\t\t\tproident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\r\n\t\t\t\t\t<p class=\'h2 d-none d-xl-block\'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\r\n\t\t\t\t\ttempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\r\n\t\t\t\t\tquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\r\n\t\t\t\t\tconsequat. Duis aute irure dolor in reprehenderit in voluptate velit esse\r\n\t\t\t\t\tcillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non\r\n\t\t\t\t\tproident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-2\'>\r\n\t\t\t\t<div class=\'col-12 col-md-6 text-center\'>\r\n\t\t\t\t\t<a href="https://thebridgebilliards.herokuapp.com/"><u class=\'view-link\'><span class=\'h4\'><i class="fa fa-eye" aria-hidden="true"></i> View on the Web</span></u></a>\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-md-6 text-center\'>\r\n\t\t\t\t\t<a href="https://github.com/RawleJuglal/bridge"><u class=\'view-link\'><span class=\'h4\'><i class="fa fa-github" aria-hidden="true"></i> View on Github</span></u></a>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<ul class="nav nav-pills">\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">MongoDB</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">ExpressJS</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">AngularJS</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">NodeJS</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t</ul>\r\n\t\t\t</div>\r\n\t\t</div><!--Web Project Container-->\r\n\t</div><!--End of row-->\r\n</div><!--End of container-->');
+  $templateCache.put('dashboard/dashboard.html', '<div>\r\n\t<h1>Hello, World</h1>\r\n</div>\t\t');
+  $templateCache.put('home/home.html', '<div class="jumbotron jumbotron-fluid">\r\n  <div class="container">\r\n    <h1 class="display-4">Fluid jumbotron</h1>\r\n    <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>\r\n  </div>\r\n</div>\r\n\r\n<web-list></web-list>\r\n<film-list></film-list>');
+  $templateCache.put('layout/app-view.html', '<app-header></app-header>\r\n\r\n<div class=\'content\' ui-view></div>\r\n\r\n<app-footer></app-footer>');
+  $templateCache.put('layout/footer.html', '<footer>\r\n    <div class="container-fluid denim-bg">\r\n        <ul class="list-unstyled pt-3">\r\n            <li><a class=\'text-white f6\' ui-sref="app.login"><h2 class=\'d-none\'>Login</h2>LOGIN</a></li>\r\n        </ul>\r\n        \r\n        <div class="row text-white f6">\r\n            <div class="col-sm-6 ml-1">\r\n            </div><!-- col-sm-6-->\r\n            <div class="col-sm-5">\r\n                <span class=\'float-right\'>\r\n                    Developed By: <a class=\'text-white f6\' href="http://www.rawlejuglal.me">rawlejuglal.me</a>.\r\n                </span>\r\n            </div>\r\n        </div><!--End of row -->\r\n        \r\n    </div>\r\n</footer>');
+  $templateCache.put('layout/header.html', '<nav class="navbar fixed-top navbar-expand-md navbar-dark denim-bg">\r\n  <a class="navbar-brand" href="#">\r\n    <img src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515711657/Logo_e1thd9.png" width="30" height="30" alt="">\r\n  </a>\r\n  </a>\r\n  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">\r\n    <span class="navbar-toggler-icon"></span>\r\n  </button>\r\n\r\n  <div class="collapse navbar-collapse" id="navbarSupportedContent">\r\n    <ul class=\'navbar-nav ml-auto\'>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="">Web Projects</a></li>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="">Film Projects</a></li>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="">Blog</a></li>\r\n    </ul>\r\n  </div>\r\n</nav>');
+  $templateCache.put('login/login.html', '<div class=\'container-fluid login-container mt-5\'>\r\n\t<div class=\'row mt-5\'>\r\n\t\t<div class=\'col-12 col-sm-6 offset-sm-3 col-md-4 offset-md-4 mt-5 mb-5\'>\r\n\t\t\t<form class=\'steel-bg mt-5 pt-3 pl-2 pr-2 pb-2 rounded-bottom animated bounceInLeft\' ng-submit="$ctrl.submitForm()">\r\n\t\t\t\t<fieldset class=\'text-center\'>\r\n\t\t\t\t\t<p class=\'h1 marigold\'>LOGIN</p>\r\n\t\t\t\t\t<p class=\'marigold\'>If you\'re not an admin you are in the wrong place</p>\r\n\t\t\t\t</fieldset>\r\n\t\t\t\t<fieldset class=\'screen-bg p-2\'>\r\n\t\t\t\t\t<fieldset ng-disabled="$ctrl.isSubmitting">\r\n\t\t\t\t  \t\t<fieldset class=\'form-group\'>\r\n\t\t\t\t  \t\t\t<div class="input-group input-group-lg mb-3">\r\n\t\t\t\t\t\t\t  <input type="text" class="form-control form-control-lg denim" placeholder="Username" \r\n\t\t\t\t\t\t\t  ng-model="$ctrl.formData.username" required\r\n\t\t\t\t\t\t\t  aria-label="username" aria-describedby="person-icon">\r\n\t\t\t\t\t\t\t  <div class="input-group-append">\r\n\t\t\t\t\t\t\t    <span class="input-group-text" id="person-icon"><i class="fa fa-user" aria-hidden="true"></i></span>\r\n\t\t\t\t\t\t\t  </div>\r\n\t\t\t\t\t\t\t</div>\r\n\t\t\t\t  \t\t</fieldset>\r\n\t                    <fieldset class=\'form-group\'>\r\n\t\t\t\t  \t\t\t<div class="input-group input-group-lg mb-3">\r\n\t\t\t\t\t\t\t  <input type="text" class="form-control form-control-lg denim" placeholder="Password" \r\n\t\t\t\t\t\t\t  ng-model="$ctrl.formData.password" required\r\n\t\t\t\t\t\t\t  aria-label="password" aria-describedby="lock-icon">\r\n\t\t\t\t\t\t\t  <div class="input-group-append">\r\n\t\t\t\t\t\t\t    <span class="input-group-text" id="lock-icon"><i class="fa fa-lock" aria-hidden="true"></i></span>\r\n\t\t\t\t\t\t\t  </div>\r\n\t\t\t\t\t\t\t</div>\r\n\t\t\t\t  \t\t</fieldset>\r\n\t                        <!-- button will use auth.controller.js var stored in title\r\n\t                         which it receives from auth.config.js -->\r\n\t                        <button class="btn btn-sm btn-light float-right"type="submit" ng-bind="$ctrl.title">\r\n\t                        </button>\r\n\t\t\t\t  </fieldset>\r\n\t\t\t\t</fieldset>\t\r\n\t\t\t</form>\r\n\t\t</div>\r\n\t</div>\r\n</div>');
 }]);
 
-},{}],94:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
+'use strict';
+
+DashboardConfig.$inject = ["$stateProvider"];
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function DashboardConfig($stateProvider) {
+    'ngInject';
+
+    $stateProvider.state('app.dashboard', {
+        url: '/dashboard',
+        controller: 'DashboardCtrl',
+        controllerAs: '$ctrl',
+        templateUrl: 'dashboard/dashboard.html',
+        title: 'Dasboard'
+    });
+};
+
+exports.default = DashboardConfig;
+
+},{}],98:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var DashboardCtrl = function DashboardCtrl(AppConstants, $state) {
+  'ngInject';
+
+  _classCallCheck(this, DashboardCtrl);
+
+  this._AppConstants = AppConstants;
+  // this._User = User;
+  // this._Post = Post;
+  // this._Resume = Resume;
+  this._$state = $state;
+  // this.posts = posts;
+  // this.resumes = resumes;
+
+  this.logout = User.logout.bind(User);
+}
+
+// submitForm() {
+//   this.isSubmitting = true;
+//   this._Post.addPost(this.formData).then(
+//     () => {
+//       this.formData = {};
+//       this.isSubmitting = false;
+//       this._$state.go(this._$state.$current, null, { reload: true });
+//     },
+//     (err) => {
+//       this.isSubmitting = false;
+//       this.errors = err.data.errors;
+//     }
+//   )
+// }
+
+// deletePost(slug){
+//   this._Post.destroy(slug).then(
+//     () => {
+//       this._$state.go(this._$state.$current, null, { reload: true });
+//     },
+//     (err) => {
+//       this.errors = err.data.errors;
+//     }
+//   )
+// }
+
+// deleteResume(slug){
+//   this._Resume.destroy(slug).then(
+//     () => {
+//       this._$state.go(this._$state.$current, null, { reload: true });
+//     },
+//     (err) => {
+//       this.errors = err.data.errors;
+//     }
+//   )
+// }
+
+;
+DashboardCtrl.$inject = ["AppConstants", "$state"];
+
+exports.default = DashboardCtrl;
+
+},{}],99:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _angular = require('angular');
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _dashboard = require('./dashboard.config');
+
+var _dashboard2 = _interopRequireDefault(_dashboard);
+
+var _dashboard3 = require('./dashboard.controller');
+
+var _dashboard4 = _interopRequireDefault(_dashboard3);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var dashboardModule = _angular2.default.module('app.dashboard', []);
+
+dashboardModule.config(_dashboard2.default);
+
+dashboardModule.controller('DashboardCtrl', _dashboard4.default);
+
+exports.default = dashboardModule;
+
+},{"./dashboard.config":97,"./dashboard.controller":98,"angular":88}],100:[function(require,module,exports){
 'use strict';
 
 HomeConfig.$inject = ["$stateProvider"];
@@ -44947,7 +45155,7 @@ function HomeConfig($stateProvider) {
 
 exports.default = HomeConfig;
 
-},{}],95:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -44967,7 +45175,7 @@ HomeCtrl.$inject = ["AppConstants"];
 
 exports.default = HomeCtrl;
 
-},{}],96:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -44996,7 +45204,7 @@ homeModule.controller('HomeCtrl', _home4.default);
 
 exports.default = homeModule;
 
-},{"./home.config":94,"./home.controller":95,"angular":88}],97:[function(require,module,exports){
+},{"./home.config":100,"./home.controller":101,"angular":88}],103:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45023,7 +45231,7 @@ var AppFooter = {
 
 exports.default = AppFooter;
 
-},{}],98:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45048,7 +45256,7 @@ var AppHeader = {
 
 exports.default = AppHeader;
 
-},{}],99:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45079,4 +45287,230 @@ layoutModule.component('appFooter', _footer2.default);
 
 exports.default = layoutModule;
 
-},{"./footer.component":97,"./header.component":98,"angular":88}]},{},[89]);
+},{"./footer.component":103,"./header.component":104,"angular":88}],106:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _angular = require('angular');
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _login = require('./login.config');
+
+var _login2 = _interopRequireDefault(_login);
+
+var _login3 = require('./login.controller');
+
+var _login4 = _interopRequireDefault(_login3);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var loginModule = _angular2.default.module('app.login', []);
+
+loginModule.config(_login2.default);
+
+loginModule.controller('LoginCtrl', _login4.default);
+
+exports.default = loginModule;
+
+},{"./login.config":107,"./login.controller":108,"angular":88}],107:[function(require,module,exports){
+'use strict';
+
+LoginConfig.$inject = ["$stateProvider"];
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function LoginConfig($stateProvider) {
+    'ngInject';
+
+    $stateProvider.state('app.login', {
+        url: '/login',
+        controller: 'LoginCtrl',
+        controllerAs: '$ctrl',
+        templateUrl: 'login/login.html',
+        title: 'Sign in'
+    });
+};
+
+exports.default = LoginConfig;
+
+},{}],108:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var LoginCtrl = function () {
+  LoginCtrl.$inject = ["AppConstants", "User", "$state"];
+  function LoginCtrl(AppConstants, User, $state) {
+    'ngInject';
+
+    _classCallCheck(this, LoginCtrl);
+
+    this.appName = AppConstants.appName;
+    this._$state = $state;
+    this.title = $state.current.title;
+    this._User = User;
+  }
+
+  //when html form clicks submit
+
+
+  _createClass(LoginCtrl, [{
+    key: 'submitForm',
+    value: function submitForm() {
+      var _this = this;
+
+      this.isSubmitting = true;
+      console.log('formData', this.formData);
+      this._User.attemptAuth(this.formData).then(function (res) {
+        _this.isSubmitting = false;
+        _this._$state.go('app.dashboard');
+      }, function (err) {
+        _this.isSubmitting = false;
+        _this.formData = {};
+        console.log(err.data.message);
+      });
+    }
+  }]);
+
+  return LoginCtrl;
+}();
+
+exports.default = LoginCtrl;
+
+},{}],109:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _angular = require('angular');
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _user = require('./user.service');
+
+var _user2 = _interopRequireDefault(_user);
+
+var _jwt = require('./jwt.service');
+
+var _jwt2 = _interopRequireDefault(_jwt);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var servicesModule = _angular2.default.module('app.services', []);
+
+//Services
+
+servicesModule.service('User', _user2.default);
+
+servicesModule.service('JWT', _jwt2.default);
+
+exports.default = servicesModule;
+
+},{"./jwt.service":110,"./user.service":111,"angular":88}],110:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var JWT = function () {
+	JWT.$inject = ["AppConstants", "$window"];
+	function JWT(AppConstants, $window) {
+		'ngInject';
+
+		_classCallCheck(this, JWT);
+
+		this._AppConstants = AppConstants;
+		this._$window = $window;
+	}
+
+	_createClass(JWT, [{
+		key: 'save',
+		value: function save(token) {
+			this._$window.localStorage[this._AppConstants.jwtKey] = token;
+		}
+	}, {
+		key: 'get',
+		value: function get() {
+			return this._$window.localStorage[this._AppConstants.jwtKey];
+		}
+	}, {
+		key: 'destroy',
+		value: function destroy() {
+			this._$window.localStorage.removeItem(this._AppConstants.jwtKey);
+		}
+	}]);
+
+	return JWT;
+}();
+
+exports.default = JWT;
+
+},{}],111:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var User = function () {
+	function User(JWT, AppConstants, $http, $state, $q) {
+		_classCallCheck(this, User);
+
+		this._JWT = JWT;
+		this._AppConstants = AppConstants;
+		this._$http = $http;
+		this._$state = $state;
+		this._$q = $q;
+	}
+
+	_createClass(User, [{
+		key: 'attemptAuth',
+		value: function attemptAuth(credentials) {
+			var _this = this;
+
+			var route = '/users/login';
+
+			return this._$http({
+				url: route,
+				method: 'POST',
+				data: credentials
+			}).then(function (res) {
+				_this._JWT.save(res.data.token);
+				return res;
+			});
+		}
+	}, {
+		key: 'logout',
+		value: function logout() {
+			this._JWT.destroy();
+			this._$state.go('app.home');
+		}
+	}]);
+
+	return User;
+}();
+
+exports.default = User;
+
+},{}]},{},[89]);
