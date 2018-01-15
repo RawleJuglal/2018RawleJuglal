@@ -4,6 +4,7 @@ let FilmProjectSchema = new mongoose.Schema({
     title:String,
     publishDate: Date,
     description: String,
+    linkImage: String,
     linkToVideo: String
 }, {collection:'FilmProjects'});
 
