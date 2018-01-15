@@ -22,10 +22,6 @@ router.get('/jquery', function(req, res, next){
   res.sendFile('/app/build/vendor/jquery/dist/jquery.slim.min.js');
 });
 
-router.get('/fontAwesome', function(req, res, next){
-	res.sendFile('/app/build/vendor/font-awesome/css/font-awesome.min.css');
-});
-
 router.get('/animate', function(req, res, next){
 	res.sendFile('/app/build/vendor/animate/animate.min.css');
 })

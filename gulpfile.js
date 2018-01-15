@@ -77,17 +77,12 @@ gulp.task('jquery', [], function(){
 	.pipe(gulp.dest('./build/vendor/jquery'));
 });
 
-gulp.task('fontAwesome', [], function(){
-	return gulp.src('node_modules/font-awesome/**/**.*')
-	.pipe(gulp.dest('./build/vendor/font-awesome'));
-});
-
 gulp.task('animateCSS', [], function(){
 	return gulp.src('node_modules/animate.css/**/**.*')
 	.pipe(gulp.dest('./build/vendor/animate'));
 });
 
-gulp.task('default', ['lint', 'html', 'css', 'errors', 'bootstrap', 'jquery', 'fontAwesome', 'animateCSS', 'browserify'], function(done){
+gulp.task('default', ['lint', 'html', 'css', 'errors', 'bootstrap', 'jquery', 'animateCSS', 'browserify'], function(done){
   console.log('all tasks finished');
 });
 
