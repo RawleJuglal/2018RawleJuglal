@@ -5,6 +5,7 @@ let WebProjectSchema = new mongoose.Schema({
     startDate:Date,
     endDate: Date,
     description: String,
+    linkImage: String,
     linkToWeb: String,
     linkToGithub: String,
     listOfTechnologies: []
