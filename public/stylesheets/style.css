@@ -30,7 +30,7 @@ a {
 }
 
 .content{
-	margin-top: 80px;
+	margin-top: 56px;
 	min-height: calc(100vh - 68px);
 }
 
@@ -91,6 +91,10 @@ a {
 
 /* Medium devices (tablets, 768px and up)*/
 @media (min-width: 768px) {
+	.content{
+		margin-top: 80px;
+	}
+
 	.jumbotron{
 		margin-top: 80px;
 		background-image: url(https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,h_242,q_100,w_768/v1515706713/jumbotron-bg_julxzs.png);
@@ -161,3 +165,9 @@ a {
 
 /*Login Styles*/
 
+
+/*Dashboard Styles*/
+
+.dropdown-item:hover{
+	background-color:#C5C1C0;
+}

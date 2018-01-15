@@ -44840,9 +44840,11 @@ require('./login');
 
 require('./dashboard');
 
+require('./editor');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var requires = ['ui.router', 'templates', 'app.services', 'app.layout', 'app.home', 'app.components', 'app.login', 'app.dashboard'];
+var requires = ['ui.router', 'templates', 'app.services', 'app.layout', 'app.home', 'app.components', 'app.login', 'app.dashboard', 'app.editor'];
 
 window.app = _angular2.default.module('app', requires);
 
@@ -44854,7 +44856,7 @@ _angular2.default.bootstrap(document, ['app'], {
 	strictDi: false
 });
 
-},{"./components":91,"./config/app.config":93,"./config/app.constants":94,"./config/app.run":95,"./config/app.templates":96,"./dashboard":99,"./home":102,"./layout":105,"./login":106,"./services":109,"angular":88,"angular-ui-router":76}],90:[function(require,module,exports){
+},{"./components":91,"./config/app.config":93,"./config/app.constants":94,"./config/app.run":95,"./config/app.templates":96,"./dashboard":99,"./editor":102,"./home":105,"./layout":108,"./login":109,"./services":112,"angular":88,"angular-ui-router":76}],90:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45009,7 +45011,8 @@ exports.default = AppRun;
 angular.module('templates', []).run(['$templateCache', function ($templateCache) {
   $templateCache.put('components/film-list.html', '<div class=\'container-fluid\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 col-md-6 pt-3 filmProjectBox\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<h2 class=\'sr-only\'>Web Projects</h2>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t<img class=\'web-bullet img-fluid\' src="https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,q_100,w_150/v1515783507/001-ticket_n6dh11.svg">\r\n\t\t\t\t</div><!--End of col-sm-3-->\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<h3 class=\'h2 d-block d-sm-none pt-1\'>Xmas Timelapse</h3>\r\n\t\t\t\t\t<p class=\'display-3 d-none d-sm-block d-md-none\'>Xmas Timelapse</p>\r\n\t\t\t\t\t<p class=\'h1 d-none d-md-block d-lg-none pt-2\'>Xmas Timelapse</p>\r\n\t\t\t\t\t<p class=\'display-4 d-none d-lg-block pt-3\'>Xmas Timelapse</p>\r\n\t\t\t\t</div><!--End of col-sm-9-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<img class=\'cal-glyph\' src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515720530/match_pk0wfk.svg">\r\n\t\t\t\t\t<span class=\'d-inline-block d-xl-none\'>Nov 17 - Dec 17</span>\r\n\t\t\t\t\t<span class=\'h1 d-none d-xl-inline-block\'>Nov 17</span>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<div class=\'col-12 text-center\'>\r\n\t\t\t\t\t<p class=\'d-xl-none\'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\r\n\t\t\t\t\ttempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\r\n\t\t\t\t\tquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\r\n\t\t\t\t\tconsequat. Duis aute irure dolor in reprehenderit in voluptate velit esse\r\n\t\t\t\t\tcillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non\r\n\t\t\t\t\tproident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\r\n\t\t\t\t\t<p class=\'h2 d-none d-xl-block\'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\r\n\t\t\t\t\ttempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\r\n\t\t\t\t\tquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\r\n\t\t\t\t\tconsequat. Duis aute irure dolor in reprehenderit in voluptate velit esse\r\n\t\t\t\t\tcillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non\r\n\t\t\t\t\tproident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\'col-12 col-md-6 pb-3 screen-bg\'>\r\n\t\t\t<p class=\'sr-only\'>Screen Box</p>\r\n\t\t\t<div class="embed-responsive embed-responsive-16by9 mt-5">\r\n\t\t\t  <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/LiSO5_DIx8A" allowfullscreen></iframe>\r\n\t\t\t</div>\r\n\t\t</div><!--marigoldBox-->\r\n\t</div>\r\n</div>');
   $templateCache.put('components/web-list.html', '<div class=\'container-fluid\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 col-md-6 d-none d-md-block marigold-bg\'>\r\n\t\t\t<p class=\'sr-only\'>Marigold Box</p>\r\n\t\t</div><!--marigoldBox-->\r\n\t\t<div class=\'col-12 col-md-6 pt-3 webProjectBox\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<h2 class=\'sr-only\'>Web Projects</h2>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t<img class=\'web-bullet img-fluid\' src="https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,q_100,w_150/v1515711777/pennant_z0xwyy.svg">\r\n\t\t\t\t</div><!--End of col-sm-3-->\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<h3 class=\'h1 d-block d-sm-none\'>The Bridge</h3>\r\n\t\t\t\t\t<p class=\'display-2 d-none d-sm-block d-md-none\'>The Bridge</p>\r\n\t\t\t\t\t<p class=\'display-4 d-none d-md-block d-lg-none\'>The Bridge</p>\r\n\t\t\t\t\t<p class=\'display-2 d-none d-lg-block\'>The Bridge</p>\r\n\t\t\t\t</div><!--End of col-sm-9-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<img class=\'cal-glyph\' src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515720530/match_pk0wfk.svg">\r\n\t\t\t\t\t<span class=\'d-inline-block d-xl-none\'>Nov 17 - Dec 17</span>\r\n\t\t\t\t\t<span class=\'h1 d-none d-xl-inline-block\'>Nov 17 - Dec 17</span>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<div class=\'col-12 text-center\'>\r\n\t\t\t\t\t<p class=\'d-xl-none\'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\r\n\t\t\t\t\ttempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\r\n\t\t\t\t\tquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\r\n\t\t\t\t\tconsequat. Duis aute irure dolor in reprehenderit in voluptate velit esse\r\n\t\t\t\t\tcillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non\r\n\t\t\t\t\tproident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\r\n\t\t\t\t\t<p class=\'h2 d-none d-xl-block\'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\r\n\t\t\t\t\ttempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\r\n\t\t\t\t\tquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\r\n\t\t\t\t\tconsequat. Duis aute irure dolor in reprehenderit in voluptate velit esse\r\n\t\t\t\t\tcillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non\r\n\t\t\t\t\tproident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-2\'>\r\n\t\t\t\t<div class=\'col-12 col-md-6 text-center\'>\r\n\t\t\t\t\t<a href="https://thebridgebilliards.herokuapp.com/"><u class=\'view-link\'><span class=\'h4\'><i class="fa fa-eye" aria-hidden="true"></i> View on the Web</span></u></a>\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-md-6 text-center\'>\r\n\t\t\t\t\t<a href="https://github.com/RawleJuglal/bridge"><u class=\'view-link\'><span class=\'h4\'><i class="fa fa-github" aria-hidden="true"></i> View on Github</span></u></a>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<ul class="nav nav-pills">\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">MongoDB</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">ExpressJS</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">AngularJS</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">NodeJS</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t</ul>\r\n\t\t\t</div>\r\n\t\t</div><!--Web Project Container-->\r\n\t</div><!--End of row-->\r\n</div><!--End of container-->');
-  $templateCache.put('dashboard/dashboard.html', '<div>\r\n\t<h1>Hello, World</h1>\r\n</div>\t\t');
+  $templateCache.put('dashboard/dashboard.html', '<div class=\'container-fluid steel-bg\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t<h2 class=\'marigold\'>Web Projects</h2>\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1516036261/TheBridge_Frame_rddziy.png" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div><!--End of col-xl-4-->\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1516036261/TheBridge_Frame_rddziy.png" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div><!--End of col-xl-4-->\t\t\t\t  \r\n\t\t\t</div>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t<h2 class=\'marigold\'>Film Projects</h2>\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1516036261/TheBridge_Frame_rddziy.png" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1516036261/TheBridge_Frame_rddziy.png" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div><!--End of col-xl-4-->\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1516036261/TheBridge_Frame_rddziy.png" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div><!--End of col-xl-4-->\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1516036261/TheBridge_Frame_rddziy.png" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div><!--End of col-xl-4-->\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\'col-12 col-xl-7\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 col-xl-9\'>\r\n\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t\t\t<h2 class=\'marigold\'>Blogs</h2>\r\n\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'card-text\'>Dec 17,2018</p>\r\n\t\t\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="btn btn-link"><i class="fa fa-comments" aria-hidden="true"></i></button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t\t\t</div>\r\n\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-3\'>\r\n\t\t\t\t\t<div class="dropdown mt-5">\r\n\t\t\t\t\t  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\r\n\t\t\t\t\t    Add...\r\n\t\t\t\t\t  </button>\r\n\t\t\t\t\t  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">\r\n\t\t\t\t\t    <button ui-sref="app.editor" class="dropdown-item" type="button">New Web Project</button>\r\n\t\t\t\t\t    <button class="dropdown-item" type="button">New Film Project</button>\r\n\t\t\t\t\t    <button class="dropdown-item" type="button">New Blog Post</button>\r\n\t\t\t\t\t  </div>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t</div><!--End of row-->\r\n</div><!--End of container-->');
+  $templateCache.put('editor/editor.html', '<div>\r\n\t<p>The editor html page</p>\r\n</div>');
   $templateCache.put('home/home.html', '<div class="jumbotron jumbotron-fluid">\r\n  <div class="container">\r\n    <h1 class="display-4">Fluid jumbotron</h1>\r\n    <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>\r\n  </div>\r\n</div>\r\n\r\n<web-list></web-list>\r\n<film-list></film-list>');
   $templateCache.put('layout/app-view.html', '<app-header></app-header>\r\n\r\n<div class=\'content\' ui-view></div>\r\n\r\n<app-footer></app-footer>');
   $templateCache.put('layout/footer.html', '<footer>\r\n    <div class="container-fluid denim-bg">\r\n        <ul class="list-unstyled pt-3">\r\n            <li><a class=\'text-white f6\' ui-sref="app.login"><h2 class=\'d-none\'>Login</h2>LOGIN</a></li>\r\n        </ul>\r\n        \r\n        <div class="row text-white f6">\r\n            <div class="col-sm-6 ml-1">\r\n            </div><!-- col-sm-6-->\r\n            <div class="col-sm-5">\r\n                <span class=\'float-right\'>\r\n                    Developed By: <a class=\'text-white f6\' href="http://www.rawlejuglal.me">rawlejuglal.me</a>.\r\n                </span>\r\n            </div>\r\n        </div><!--End of row -->\r\n        \r\n    </div>\r\n</footer>');
@@ -45047,13 +45050,13 @@ Object.defineProperty(exports, "__esModule", {
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var DashboardCtrl = function DashboardCtrl(AppConstants, $state) {
+var DashboardCtrl = function DashboardCtrl(AppConstants, User, $state) {
   'ngInject';
 
   _classCallCheck(this, DashboardCtrl);
 
   this._AppConstants = AppConstants;
-  // this._User = User;
+  this._User = User;
   // this._Post = Post;
   // this._Resume = Resume;
   this._$state = $state;
@@ -45101,7 +45104,7 @@ var DashboardCtrl = function DashboardCtrl(AppConstants, $state) {
 // }
 
 ;
-DashboardCtrl.$inject = ["AppConstants", "$state"];
+DashboardCtrl.$inject = ["AppConstants", "User", "$state"];
 
 exports.default = DashboardCtrl;
 
@@ -45137,6 +45140,81 @@ exports.default = dashboardModule;
 },{"./dashboard.config":97,"./dashboard.controller":98,"angular":88}],100:[function(require,module,exports){
 'use strict';
 
+EditorConfig.$inject = ["$stateProvider"];
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+function EditorConfig($stateProvider) {
+  'ngInject';
+
+  $stateProvider.state('app.editor', {
+    url: '/editor/:slug',
+    controller: 'EditorCtrl',
+    controllerAs: '$ctrl',
+    templateUrl: 'editor/editor.html',
+    title: 'Editor'
+  });
+};
+
+exports.default = EditorConfig;
+
+},{}],101:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var EditorCtrl = function EditorCtrl($state) {
+  'ngInject';
+
+  _classCallCheck(this, EditorCtrl);
+
+  this._$state = $state;
+};
+EditorCtrl.$inject = ["$state"];
+
+exports.default = EditorCtrl;
+
+},{}],102:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _angular = require('angular');
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _editor = require('./editor.config');
+
+var _editor2 = _interopRequireDefault(_editor);
+
+var _editor3 = require('./editor.controller');
+
+var _editor4 = _interopRequireDefault(_editor3);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// Create the module where our functionality can attach to
+var editorModule = _angular2.default.module('app.editor', []);
+
+// Include our UI-Router config settings
+
+editorModule.config(_editor2.default);
+
+// Controllers
+
+editorModule.controller('EditorCtrl', _editor4.default);
+
+exports.default = editorModule;
+
+},{"./editor.config":100,"./editor.controller":101,"angular":88}],103:[function(require,module,exports){
+'use strict';
+
 HomeConfig.$inject = ["$stateProvider"];
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -45155,7 +45233,7 @@ function HomeConfig($stateProvider) {
 
 exports.default = HomeConfig;
 
-},{}],101:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45175,7 +45253,7 @@ HomeCtrl.$inject = ["AppConstants"];
 
 exports.default = HomeCtrl;
 
-},{}],102:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45204,7 +45282,7 @@ homeModule.controller('HomeCtrl', _home4.default);
 
 exports.default = homeModule;
 
-},{"./home.config":100,"./home.controller":101,"angular":88}],103:[function(require,module,exports){
+},{"./home.config":103,"./home.controller":104,"angular":88}],106:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45231,7 +45309,7 @@ var AppFooter = {
 
 exports.default = AppFooter;
 
-},{}],104:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45256,7 +45334,7 @@ var AppHeader = {
 
 exports.default = AppHeader;
 
-},{}],105:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45287,7 +45365,7 @@ layoutModule.component('appFooter', _footer2.default);
 
 exports.default = layoutModule;
 
-},{"./footer.component":103,"./header.component":104,"angular":88}],106:[function(require,module,exports){
+},{"./footer.component":106,"./header.component":107,"angular":88}],109:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45316,7 +45394,7 @@ loginModule.controller('LoginCtrl', _login4.default);
 
 exports.default = loginModule;
 
-},{"./login.config":107,"./login.controller":108,"angular":88}],107:[function(require,module,exports){
+},{"./login.config":110,"./login.controller":111,"angular":88}],110:[function(require,module,exports){
 'use strict';
 
 LoginConfig.$inject = ["$stateProvider"];
@@ -45337,7 +45415,7 @@ function LoginConfig($stateProvider) {
 
 exports.default = LoginConfig;
 
-},{}],108:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45387,7 +45465,7 @@ var LoginCtrl = function () {
 
 exports.default = LoginCtrl;
 
-},{}],109:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45418,7 +45496,7 @@ servicesModule.service('JWT', _jwt2.default);
 
 exports.default = servicesModule;
 
-},{"./jwt.service":110,"./user.service":111,"angular":88}],110:[function(require,module,exports){
+},{"./jwt.service":113,"./user.service":114,"angular":88}],113:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45462,7 +45540,7 @@ var JWT = function () {
 
 exports.default = JWT;
 
-},{}],111:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {

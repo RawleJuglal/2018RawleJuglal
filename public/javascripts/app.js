@@ -13,6 +13,7 @@ import './components';
 import './services';
 import './login';
 import './dashboard';
+import './editor';
 
 const requires = [
 	'ui.router', 
@@ -22,7 +23,8 @@ const requires = [
 	'app.home',
 	'app.components',
 	'app.login',
-	'app.dashboard'	
+	'app.dashboard',
+	'app.editor'	
 ];
 
 window.app = angular.module('app', requires);
