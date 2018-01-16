@@ -1,19 +1,19 @@
 <div class='container-fluid'>
-	<div class='row'>
+	<div class='row' ng-repeat="website in $ctrl.websites">
 		<div class='col-12 col-md-6 d-none d-md-block marigold-bg'>
 			<p class='sr-only'>Marigold Box</p>
 		</div><!--marigoldBox-->
 		<div class='col-12 col-md-6 pt-3 webProjectBox'>
+			<h2 class='sr-only'>Web Projects</h2>
 			<div class='row'>
-				<h2 class='sr-only'>Web Projects</h2>
 				<div class='col-3'>
 					<img class='web-bullet img-fluid' src="https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,q_100,w_150/v1515711777/pennant_z0xwyy.svg">
 				</div><!--End of col-sm-3-->
 				<div class='col-9'>
-					<h3 class='h1 d-block d-sm-none'>The Bridge</h3>
-					<p class='display-2 d-none d-sm-block d-md-none'>The Bridge</p>
-					<p class='display-4 d-none d-md-block d-lg-none'>The Bridge</p>
-					<p class='display-2 d-none d-lg-block'>The Bridge</p>
+					<h3 class='h1 d-block d-sm-none'>{{website.title}}</h3>
+					<p class='display-2 d-none d-sm-block d-md-none'>{{website.title}}</p>
+					<p class='display-4 d-none d-md-block d-lg-none'>{{website.title}}</p>
+					<p class='display-2 d-none d-lg-block'>{{website.title}}</p>
 				</div><!--End of col-sm-9-->
 			</div><!--End of row-->
 			<div class='row'>
