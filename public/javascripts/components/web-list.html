@@ -1,4 +1,4 @@
-<div class='container-fluid'>
+<div id='web' class='container-fluid project-container'>
 	<div class='row' ng-repeat="website in $ctrl.websites">
 		<div class='col-12 col-md-6 d-none d-md-block marigold-bg'>
 			<p class='sr-only'>Marigold Box</p>
@@ -22,47 +22,28 @@
 				</div>
 				<div class='col-9'>
 					<img class='cal-glyph' src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515720530/match_pk0wfk.svg">
-					<span class='d-inline-block d-xl-none'>Nov 17 - Dec 17</span>
-					<span class='h1 d-none d-xl-inline-block'>Nov 17 - Dec 17</span>
+					<span class='d-inline-block d-xl-none'>{{website.startDate|date: "MMM"}} '{{website.startDate|date:"yy"}} - {{website.endDate|date:"MMM"}} '{{website.endDate|date:"yy"}}</span>
+					<span class='h1 d-none d-xl-inline-block'>{{website.startDate|date:"MMM"}} '{{website.startDate|date:"yy"}} - {{website.endDate|date:"MMM"}} '{{website.endDate|date:"yy"}}</span>
 				</div>
 			</div>
 			<div class='row pt-3'>
 				<div class='col-12 text-center'>
-					<p class='d-xl-none'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-					consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-					cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-					proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-					<p class='h2 d-none d-xl-block'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-					consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-					cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-					proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+					<p class='d-xl-none'>{{website.description}}</p>
+					<p class='h2 d-none d-xl-block'>{{website.description}}</p>
 				</div>
 			</div>
 			<div class='row pt-2'>
 				<div class='col-12 col-md-6 text-center'>
-					<a href="https://thebridgebilliards.herokuapp.com/"><u class='view-link'><span class='h4'><i class='fa fa-eye' aria-hidden="true"></i> View on the Web</span></u></a>
+					<a href="{{website.linkToWeb}}"><u class='view-link'><span class='h4'><i class='fa fa-eye' aria-hidden="true"></i> View on the Web</span></u></a>
 				</div>
 				<div class='col-12 col-md-6 text-center'>
-					<a href="https://github.com/RawleJuglal/bridge"><u class='view-link'><span class='h4'><i class='fa fa-github' aria-hidden="true"></i> View on Github</span></u></a>
+					<a href="{{website.linkToGithub}}"><u class='view-link'><span class='h4'><i class='fa fa-github' aria-hidden="true"></i> View on Github</span></u></a>
 				</div>
 			</div>
 			<div class='row pt-3'>
 				<ul class="nav nav-pills">
-				  <li class="nav-item m-1 animated technologies">
-				    <a class="nav-link btn btn-sm btn-warning disabled" href="#">MongoDB</a>
-				  </li>
-				  <li class="nav-item m-1 animated technologies">
-				    <a class="nav-link btn btn-sm btn-warning disabled" href="#">ExpressJS</a>
-				  </li>
-				  <li class="nav-item m-1 animated technologies">
-				    <a class="nav-link btn btn-sm btn-warning disabled" href="#">AngularJS</a>
-				  </li>
-				  <li class="nav-item m-1 animated technologies">
-				    <a class="nav-link btn btn-sm btn-warning disabled" href="#">NodeJS</a>
+				  <li class="nav-item m-1 animated technologies" ng-repeat="item in website.listOfTechnologies track by $index">
+				    <a class="nav-link btn btn-sm btn-warning disabled" href="#">{{website.listOfTechnologies[$index]}}</a>
 				  </li>
 				</ul>
 			</div>

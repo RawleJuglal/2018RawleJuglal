@@ -1,18 +1,31 @@
 class DashboardCtrl {
-  constructor(AppConstants, User, $state) {
+  constructor(AppConstants, User, $state, Film, Web) {
     'ngInject';
 
     this._AppConstants = AppConstants;
     this._User = User;
-    // this._Post = Post;
-    // this._Resume = Resume;
+    this._Film = Film;
+    this._Web = Web;
     this._$state = $state;
-    // this.posts = posts;
-    // this.resumes = resumes;
+    this.films = [];
+    this.websites = [];
 
     this.logout = User.logout.bind(User);
   }
 
+  $onInit() {    
+         this._Film.get().then(
+             (result) => {
+                     this.films = result;
+                 }
+             )
+
+         this._Web.get().then(
+            (result) => {
+                this.websites = result;
+            }
+          )
+     }
   // submitForm() {
   //   this.isSubmitting = true;
   //   this._Post.addPost(this.formData).then(
@@ -28,27 +41,32 @@ class DashboardCtrl {
   //   )
   // }
   
-  // deletePost(slug){
-  //   this._Post.destroy(slug).then(
-  //     () => {
-  //       this._$state.go(this._$state.$current, null, { reload: true });
-  //     },
-  //     (err) => {
-  //       this.errors = err.data.errors;
-  //     }
-  //   )
-  // }
-  
-  // deleteResume(slug){
-  //   this._Resume.destroy(slug).then(
-  //     () => {
-  //       this._$state.go(this._$state.$current, null, { reload: true });
-  //     },
-  //     (err) => {
-  //       this.errors = err.data.errors;
-  //     }
-  //   )
-  // }
+     deleteProject(type, slug){
+        if(type == 'film') {
+            this._Film.destroy(slug).then(
+                () => {
+                  this._$state.go(this._$state.$current, null, { reload: true });
+                },
+                (err) => {
+                  this.errors = err.data.errors;
+                }
+            )
+        }
+        else if (type == 'web') {
+            this._Web.destroy(slug).then(
+                () => {
+                   this._$state.go(this._$state.$current, null, { reload: true }); 
+                },
+                (err) => {
+                  this.errors = err.data.errors;
+                }
+            )
+        }
+        else
+        {
+            console.log('not recognizing film or web project');
+        }
+     }
 
 }
 

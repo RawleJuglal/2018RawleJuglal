@@ -1,16 +1,16 @@
-<div class='container-fluid'>
-	<div class='row'>
+<div id='film' class='container-fluid project-container'>
+	<div class='row' ng-repeat="film in $ctrl.films">
 		<div class='col-12 col-md-6 pt-3 filmProjectBox'>
 			<div class='row'>
-				<h2 class='sr-only'>Web Projects</h2>
+				<h2 class='sr-only'>Film Projects</h2>
 				<div class='col-3'>
 					<img class='web-bullet img-fluid' src="https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,q_100,w_150/v1515783507/001-ticket_n6dh11.svg">
 				</div><!--End of col-sm-3-->
 				<div class='col-9'>
-					<h3 class='h2 d-block d-sm-none pt-1'>Xmas Timelapse</h3>
-					<p class='display-3 d-none d-sm-block d-md-none'>Xmas Timelapse</p>
-					<p class='h1 d-none d-md-block d-lg-none pt-2'>Xmas Timelapse</p>
-					<p class='display-4 d-none d-lg-block pt-3'>Xmas Timelapse</p>
+					<h3 class='h2 d-block d-sm-none pt-1'>{{film.title}}</h3>
+					<p class='display-3 d-none d-sm-block d-md-none'>{{film.title}}</p>
+					<p class='h1 d-none d-md-block d-lg-none pt-2'>{{film.title}}</p>
+					<p class='display-4 d-none d-lg-block pt-3'>{{film.title}}</p>
 				</div><!--End of col-sm-9-->
 			</div><!--End of row-->
 			<div class='row'>
@@ -19,31 +19,21 @@
 				</div>
 				<div class='col-9'>
 					<img class='cal-glyph' src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515720530/match_pk0wfk.svg">
-					<span class='d-inline-block d-xl-none'>Nov 17 - Dec 17</span>
-					<span class='h1 d-none d-xl-inline-block'>Nov 17</span>
+					<span class='d-inline-block d-xl-none'>{{film.publishDate|date:'MMM'}} '{{film.publishDate|date:"yy"}}</span>
+					<span class='h1 d-none d-xl-inline-block'>{{film.publishDate|date:'MMM'}} '{{film.publishDate|date:"yy"}}</span>
 				</div>
 			</div>
 			<div class='row pt-3'>
 				<div class='col-12 text-center'>
-					<p class='d-xl-none'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-					consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-					cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-					proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-					<p class='h2 d-none d-xl-block'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-					consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-					cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-					proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+					<p class='d-xl-none'>{{film.description}}</p>
+					<p class='h2 d-none d-xl-block'>{{film.description}}</p>
 				</div>
 			</div>
 		</div>
 		<div class='col-12 col-md-6 pb-3 screen-bg'>
 			<p class='sr-only'>Screen Box</p>
 			<div class="embed-responsive embed-responsive-16by9 mt-5">
-			  <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/LiSO5_DIx8A" allowfullscreen></iframe>
+			  <iframe class="embed-responsive-item" ng-src="{{film.linkToVideo | trusted}}" allowfullscreen></iframe>
 			</div>
 		</div><!--marigoldBox-->
 	</div>
