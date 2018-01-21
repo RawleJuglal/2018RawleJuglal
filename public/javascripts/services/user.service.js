@@ -18,6 +18,7 @@ export default class User {
 	     }).then(
 	       (res) => {
 	       		this._JWT.save(res.data.token);
+	       		this.current = res.data;
 	       		return res;
 	       }
 	     );

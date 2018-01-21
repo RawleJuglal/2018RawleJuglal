@@ -4,6 +4,7 @@ import constants from './config/app.constants';
 import appConfig from './config/app.config';
 import appRun from './config/app.run';
 import 'angular-ui-router';
+import 'angular-scroll';
 
 import './config/app.templates';
 
@@ -14,9 +15,11 @@ import './services';
 import './login';
 import './dashboard';
 import './editor';
+import './filters';
 
 const requires = [
-	'ui.router', 
+	'ui.router',
+	'duScroll', 
 	'templates',
 	'app.services',
 	'app.layout',
@@ -24,10 +27,11 @@ const requires = [
 	'app.components',
 	'app.login',
 	'app.dashboard',
-	'app.editor'	
+	'app.editor',
+	'app.filters',	
 ];
 
-window.app = angular.module('app', requires);
+window.app = angular.module('app', requires).value('duScrollOffset', 80);
 
 angular.module('app').constant('AppConstants', constants);
 angular.module('app').config(appConfig);

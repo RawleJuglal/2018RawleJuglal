@@ -24,7 +24,10 @@ router.get('/jquery', function(req, res, next){
 
 router.get('/animate', function(req, res, next){
 	res.sendFile('/app/build/vendor/animate/animate.min.css');
-})
+});
 
+router.get('/scroll', function(req, res, next){
+	res.sendFile('/app/build/vendor/scroll/angular-scroll.min.js');
+});
 
 module.exports = router;

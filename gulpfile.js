@@ -82,7 +82,12 @@ gulp.task('animateCSS', [], function(){
 	.pipe(gulp.dest('./build/vendor/animate'));
 });
 
-gulp.task('default', ['lint', 'html', 'css', 'errors', 'bootstrap', 'jquery', 'animateCSS', 'browserify'], function(done){
+gulp.task('scroll', [], function(){
+	return gulp.src('node_modules/angular-scroll/**/**.*')
+		.pipe(gulp.dest('./build/vendor/scroll'));
+});
+
+gulp.task('default', ['lint', 'html', 'css', 'errors', 'bootstrap', 'jquery', 'animateCSS', 'scroll', 'browserify'], function(done){
   console.log('all tasks finished');
 });
 

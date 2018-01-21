@@ -81,6 +81,14 @@ a {
 	background-image: url(https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,h_242,q_100,w_320/v1515706713/jumbotron-bg_julxzs.png);
 	background-size: cover;
 	background-repeat: no-repeat;
+	min-height: 275px;
+}
+
+
+.delay{
+	-webkit-animation-delay:1s;
+	-moz-animation-delay:1s;
+	animation-delay:1s;
 }
 
 @media (min-width: 576px) { 
@@ -116,8 +124,16 @@ a {
 }
 
 /*Web Projects Component Styles*/
-.webProjectBox{
+.project-container{
 	border:1px solid #1A2930;
+}
+
+.webProjectBox{
+	border-left:1px solid #1A2930;
+}
+
+.filmProjectBox{
+	border-right:1px solid #1A2930;
 }
 
 .cal-glyph{
@@ -168,6 +184,14 @@ a {
 
 /*Dashboard Styles*/
 
-.dropdown-item:hover{
-	background-color:#C5C1C0;
+/*Editor Styles*/
+
+.editor-container{
+	min-height: 100vh;
+}
+
+.denim-btn:hover{
+	background-color:#1A2930;
+	color:white;
+	transition: color 1s ease, background-color 1s ease; 
 }

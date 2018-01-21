@@ -8340,13 +8340,657 @@ ViewService.matches = function (uiViewsByFqn, uiView) { return function (viewCon
 exports.ViewService = ViewService;
 
 },{"../common/common":1,"../common/hof":4,"../common/predicates":6,"../common/trace":9}],73:[function(require,module,exports){
+/**
+  * x is a value between 0 and 1, indicating where in the animation you are.
+  */
+var duScrollDefaultEasing = function (x) {
+  'use strict';
+
+  if(x < 0.5) {
+    return Math.pow(x*2, 2)/2;
+  }
+  return 1-Math.pow((1-x)*2, 2)/2;
+};
+
+var duScroll = angular.module('duScroll', [
+  'duScroll.scrollspy',
+  'duScroll.smoothScroll',
+  'duScroll.scrollContainer',
+  'duScroll.spyContext',
+  'duScroll.scrollHelpers'
+])
+  //Default animation duration for smoothScroll directive
+  .value('duScrollDuration', 350)
+  //Scrollspy debounce interval, set to 0 to disable
+  .value('duScrollSpyWait', 100)
+  //Scrollspy forced refresh interval, use if your content changes or reflows without scrolling.
+  //0 to disable
+  .value('duScrollSpyRefreshInterval', 0)
+  //Wether or not multiple scrollspies can be active at once
+  .value('duScrollGreedy', false)
+  //Default offset for smoothScroll directive
+  .value('duScrollOffset', 0)
+  //Default easing function for scroll animation
+  .value('duScrollEasing', duScrollDefaultEasing)
+  //Which events on the container (such as body) should cancel scroll animations
+  .value('duScrollCancelOnEvents', 'scroll mousedown mousewheel touchmove keydown')
+  //Whether or not to activate the last scrollspy, when page/container bottom is reached
+  .value('duScrollBottomSpy', false)
+  //Active class name
+  .value('duScrollActiveClass', 'active');
+
+if (typeof module !== 'undefined' && module && module.exports) {
+  module.exports = duScroll;
+}
+
+
+angular.module('duScroll.scrollHelpers', ['duScroll.requestAnimation'])
+.run(["$window", "$q", "cancelAnimation", "requestAnimation", "duScrollEasing", "duScrollDuration", "duScrollOffset", "duScrollCancelOnEvents", function($window, $q, cancelAnimation, requestAnimation, duScrollEasing, duScrollDuration, duScrollOffset, duScrollCancelOnEvents) {
+  'use strict';
+
+  var proto = {};
+
+  var isDocument = function(el) {
+    return (typeof HTMLDocument !== 'undefined' && el instanceof HTMLDocument) || (el.nodeType && el.nodeType === el.DOCUMENT_NODE);
+  };
+
+  var isElement = function(el) {
+    return (typeof HTMLElement !== 'undefined' && el instanceof HTMLElement) || (el.nodeType && el.nodeType === el.ELEMENT_NODE);
+  };
+
+  var unwrap = function(el) {
+    return isElement(el) || isDocument(el) ? el : el[0];
+  };
+
+  proto.duScrollTo = function(left, top, duration, easing) {
+    var aliasFn;
+    if(angular.isElement(left)) {
+      aliasFn = this.duScrollToElement;
+    } else if(angular.isDefined(duration)) {
+      aliasFn = this.duScrollToAnimated;
+    }
+    if(aliasFn) {
+      return aliasFn.apply(this, arguments);
+    }
+    var el = unwrap(this);
+    if(isDocument(el)) {
+      return $window.scrollTo(left, top);
+    }
+    el.scrollLeft = left;
+    el.scrollTop = top;
+  };
+
+  var scrollAnimation, deferred;
+  proto.duScrollToAnimated = function(left, top, duration, easing) {
+    if(duration && !easing) {
+      easing = duScrollEasing;
+    }
+    var startLeft = this.duScrollLeft(),
+        startTop = this.duScrollTop(),
+        deltaLeft = Math.round(left - startLeft),
+        deltaTop = Math.round(top - startTop);
+
+    var startTime = null, progress = 0;
+    var el = this;
+
+    var cancelScrollAnimation = function($event) {
+      if (!$event || (progress && $event.which > 0)) {
+        if(duScrollCancelOnEvents) {
+          el.unbind(duScrollCancelOnEvents, cancelScrollAnimation);
+        }
+        cancelAnimation(scrollAnimation);
+        deferred.reject();
+        scrollAnimation = null;
+      }
+    };
+
+    if(scrollAnimation) {
+      cancelScrollAnimation();
+    }
+    deferred = $q.defer();
+
+    if(duration === 0 || (!deltaLeft && !deltaTop)) {
+      if(duration === 0) {
+        el.duScrollTo(left, top);
+      }
+      deferred.resolve();
+      return deferred.promise;
+    }
+
+    var animationStep = function(timestamp) {
+      if (startTime === null) {
+        startTime = timestamp;
+      }
+
+      progress = timestamp - startTime;
+      var percent = (progress >= duration ? 1 : easing(progress/duration));
+
+      el.scrollTo(
+        startLeft + Math.ceil(deltaLeft * percent),
+        startTop + Math.ceil(deltaTop * percent)
+      );
+      if(percent < 1) {
+        scrollAnimation = requestAnimation(animationStep);
+      } else {
+        if(duScrollCancelOnEvents) {
+          el.unbind(duScrollCancelOnEvents, cancelScrollAnimation);
+        }
+        scrollAnimation = null;
+        deferred.resolve();
+      }
+    };
+
+    //Fix random mobile safari bug when scrolling to top by hitting status bar
+    el.duScrollTo(startLeft, startTop);
+
+    if(duScrollCancelOnEvents) {
+      el.bind(duScrollCancelOnEvents, cancelScrollAnimation);
+    }
+
+    scrollAnimation = requestAnimation(animationStep);
+    return deferred.promise;
+  };
+
+  proto.duScrollToElement = function(target, offset, duration, easing) {
+    var el = unwrap(this);
+    if(!angular.isNumber(offset) || isNaN(offset)) {
+      offset = duScrollOffset;
+    }
+    var top = this.duScrollTop() + unwrap(target).getBoundingClientRect().top - offset;
+    if(isElement(el)) {
+      top -= el.getBoundingClientRect().top;
+    }
+    return this.duScrollTo(0, top, duration, easing);
+  };
+
+  proto.duScrollLeft = function(value, duration, easing) {
+    if(angular.isNumber(value)) {
+      return this.duScrollTo(value, this.duScrollTop(), duration, easing);
+    }
+    var el = unwrap(this);
+    if(isDocument(el)) {
+      return $window.scrollX || document.documentElement.scrollLeft || document.body.scrollLeft;
+    }
+    return el.scrollLeft;
+  };
+  proto.duScrollTop = function(value, duration, easing) {
+    if(angular.isNumber(value)) {
+      return this.duScrollTo(this.duScrollLeft(), value, duration, easing);
+    }
+    var el = unwrap(this);
+    if(isDocument(el)) {
+      return $window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+    }
+    return el.scrollTop;
+  };
+
+  proto.duScrollToElementAnimated = function(target, offset, duration, easing) {
+    return this.duScrollToElement(target, offset, duration || duScrollDuration, easing);
+  };
+
+  proto.duScrollTopAnimated = function(top, duration, easing) {
+    return this.duScrollTop(top, duration || duScrollDuration, easing);
+  };
+
+  proto.duScrollLeftAnimated = function(left, duration, easing) {
+    return this.duScrollLeft(left, duration || duScrollDuration, easing);
+  };
+
+  angular.forEach(proto, function(fn, key) {
+    angular.element.prototype[key] = fn;
+
+    //Remove prefix if not already claimed by jQuery / ui.utils
+    var unprefixed = key.replace(/^duScroll/, 'scroll');
+    if(angular.isUndefined(angular.element.prototype[unprefixed])) {
+      angular.element.prototype[unprefixed] = fn;
+    }
+  });
+
+}]);
+
+
+//Adapted from https://gist.github.com/paulirish/1579671
+angular.module('duScroll.polyfill', [])
+.factory('polyfill', ["$window", function($window) {
+  'use strict';
+
+  var vendors = ['webkit', 'moz', 'o', 'ms'];
+
+  return function(fnName, fallback) {
+    if($window[fnName]) {
+      return $window[fnName];
+    }
+    var suffix = fnName.substr(0, 1).toUpperCase() + fnName.substr(1);
+    for(var key, i = 0; i < vendors.length; i++) {
+      key = vendors[i]+suffix;
+      if($window[key]) {
+        return $window[key];
+      }
+    }
+    return fallback;
+  };
+}]);
+
+angular.module('duScroll.requestAnimation', ['duScroll.polyfill'])
+.factory('requestAnimation', ["polyfill", "$timeout", function(polyfill, $timeout) {
+  'use strict';
+
+  var lastTime = 0;
+  var fallback = function(callback, element) {
+    var currTime = new Date().getTime();
+    var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+    var id = $timeout(function() { callback(currTime + timeToCall); },
+      timeToCall);
+    lastTime = currTime + timeToCall;
+    return id;
+  };
+
+  return polyfill('requestAnimationFrame', fallback);
+}])
+.factory('cancelAnimation', ["polyfill", "$timeout", function(polyfill, $timeout) {
+  'use strict';
+
+  var fallback = function(promise) {
+    $timeout.cancel(promise);
+  };
+
+  return polyfill('cancelAnimationFrame', fallback);
+}]);
+
+
+angular.module('duScroll.spyAPI', ['duScroll.scrollContainerAPI'])
+.factory('spyAPI', ["$rootScope", "$timeout", "$interval", "$window", "$document", "scrollContainerAPI", "duScrollGreedy", "duScrollSpyWait", "duScrollSpyRefreshInterval", "duScrollBottomSpy", "duScrollActiveClass", function($rootScope, $timeout, $interval, $window, $document, scrollContainerAPI, duScrollGreedy, duScrollSpyWait, duScrollSpyRefreshInterval, duScrollBottomSpy, duScrollActiveClass) {
+  'use strict';
+
+  var createScrollHandler = function(context) {
+    var timer = false, queued = false;
+    var handler = function() {
+      queued = false;
+      var container = context.container,
+          containerEl = container[0],
+          containerOffset = 0,
+          bottomReached;
+
+      if (typeof HTMLElement !== 'undefined' && containerEl instanceof HTMLElement || containerEl.nodeType && containerEl.nodeType === containerEl.ELEMENT_NODE) {
+        containerOffset = containerEl.getBoundingClientRect().top;
+        bottomReached = Math.round(containerEl.scrollTop + containerEl.clientHeight) >= containerEl.scrollHeight;
+      } else {
+        var documentScrollHeight = $document[0].body.scrollHeight || $document[0].documentElement.scrollHeight; // documentElement for IE11
+        bottomReached = Math.round($window.pageYOffset + $window.innerHeight) >= documentScrollHeight;
+      }
+      var compareProperty = (duScrollBottomSpy && bottomReached ? 'bottom' : 'top');
+
+      var i, currentlyActive, toBeActive, spies, spy, pos;
+      spies = context.spies;
+      currentlyActive = context.currentlyActive;
+      toBeActive = undefined;
+
+      for(i = 0; i < spies.length; i++) {
+        spy = spies[i];
+        pos = spy.getTargetPosition();
+        if (!pos || !spy.$element) continue;
+
+        if((duScrollBottomSpy && bottomReached) || (pos.top + spy.offset - containerOffset < 20 && (duScrollGreedy || pos.top*-1 + containerOffset) < pos.height)) {
+          //Find the one closest the viewport top or the page bottom if it's reached
+          if(!toBeActive || toBeActive[compareProperty] < pos[compareProperty]) {
+            toBeActive = {
+              spy: spy
+            };
+            toBeActive[compareProperty] = pos[compareProperty];
+          }
+        }
+      }
+
+      if(toBeActive) {
+        toBeActive = toBeActive.spy;
+      }
+      if(currentlyActive === toBeActive || (duScrollGreedy && !toBeActive)) return;
+      if(currentlyActive && currentlyActive.$element) {
+        currentlyActive.$element.removeClass(duScrollActiveClass);
+        $rootScope.$broadcast(
+          'duScrollspy:becameInactive',
+          currentlyActive.$element,
+          angular.element(currentlyActive.getTargetElement())
+        );
+      }
+      if(toBeActive) {
+        toBeActive.$element.addClass(duScrollActiveClass);
+        $rootScope.$broadcast(
+          'duScrollspy:becameActive',
+          toBeActive.$element,
+          angular.element(toBeActive.getTargetElement())
+        );
+      }
+      context.currentlyActive = toBeActive;
+    };
+
+    if(!duScrollSpyWait) {
+      return handler;
+    }
+
+    //Debounce for potential performance savings
+    return function() {
+      if(!timer) {
+        handler();
+        timer = $timeout(function() {
+          timer = false;
+          if(queued) {
+            handler();
+          }
+        }, duScrollSpyWait, false);
+      } else {
+        queued = true;
+      }
+    };
+  };
+
+  var contexts = {};
+
+  var createContext = function($scope) {
+    var id = $scope.$id;
+    var context = {
+      spies: []
+    };
+
+    context.handler = createScrollHandler(context);
+    contexts[id] = context;
+
+    $scope.$on('$destroy', function() {
+      destroyContext($scope);
+    });
+
+    return id;
+  };
+
+  var destroyContext = function($scope) {
+    var id = $scope.$id;
+    var context = contexts[id], container = context.container;
+    if(context.intervalPromise) {
+      $interval.cancel(context.intervalPromise);
+    }
+    if(container) {
+      container.off('scroll', context.handler);
+    }
+    delete contexts[id];
+  };
+
+  var defaultContextId = createContext($rootScope);
+
+  var getContextForScope = function(scope) {
+    if(contexts[scope.$id]) {
+      return contexts[scope.$id];
+    }
+    if(scope.$parent) {
+      return getContextForScope(scope.$parent);
+    }
+    return contexts[defaultContextId];
+  };
+
+  var getContextForSpy = function(spy) {
+    var context, contextId, scope = spy.$scope;
+    if(scope) {
+      return getContextForScope(scope);
+    }
+    //No scope, most likely destroyed
+    for(contextId in contexts) {
+      context = contexts[contextId];
+      if(context.spies.indexOf(spy) !== -1) {
+        return context;
+      }
+    }
+  };
+
+  var isElementInDocument = function(element) {
+    while (element.parentNode) {
+      element = element.parentNode;
+      if (element === document) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  var addSpy = function(spy) {
+    var context = getContextForSpy(spy);
+    if (!context) return;
+    context.spies.push(spy);
+    if (!context.container || !isElementInDocument(context.container)) {
+      if(context.container) {
+        context.container.off('scroll', context.handler);
+      }
+      context.container = scrollContainerAPI.getContainer(spy.$scope);
+      if (duScrollSpyRefreshInterval && !context.intervalPromise) {
+        context.intervalPromise = $interval(context.handler, duScrollSpyRefreshInterval, 0, false);
+      }
+      context.container.on('scroll', context.handler).triggerHandler('scroll');
+    }
+  };
+
+  var removeSpy = function(spy) {
+    var context = getContextForSpy(spy);
+    if(spy === context.currentlyActive) {
+      $rootScope.$broadcast('duScrollspy:becameInactive', context.currentlyActive.$element);
+      context.currentlyActive = null;
+    }
+    var i = context.spies.indexOf(spy);
+    if(i !== -1) {
+      context.spies.splice(i, 1);
+    }
+		spy.$element = null;
+  };
+
+  return {
+    addSpy: addSpy,
+    removeSpy: removeSpy,
+    createContext: createContext,
+    destroyContext: destroyContext,
+    getContextForScope: getContextForScope
+  };
+}]);
+
+
+angular.module('duScroll.scrollContainerAPI', [])
+.factory('scrollContainerAPI', ["$document", function($document) {
+  'use strict';
+
+  var containers = {};
+
+  var setContainer = function(scope, element) {
+    var id = scope.$id;
+    containers[id] = element;
+    return id;
+  };
+
+  var getContainerId = function(scope) {
+    if(containers[scope.$id]) {
+      return scope.$id;
+    }
+    if(scope.$parent) {
+      return getContainerId(scope.$parent);
+    }
+    return;
+  };
+
+  var getContainer = function(scope) {
+    var id = getContainerId(scope);
+    return id ? containers[id] : $document;
+  };
+
+  var removeContainer = function(scope) {
+    var id = getContainerId(scope);
+    if(id) {
+      delete containers[id];
+    }
+  };
+
+  return {
+    getContainerId:   getContainerId,
+    getContainer:     getContainer,
+    setContainer:     setContainer,
+    removeContainer:  removeContainer
+  };
+}]);
+
+
+angular.module('duScroll.smoothScroll', ['duScroll.scrollHelpers', 'duScroll.scrollContainerAPI'])
+.directive('duSmoothScroll', ["duScrollDuration", "duScrollOffset", "scrollContainerAPI", function(duScrollDuration, duScrollOffset, scrollContainerAPI) {
+  'use strict';
+
+  return {
+    link : function($scope, $element, $attr) {
+      $element.on('click', function(e) {
+        if((!$attr.href || $attr.href.indexOf('#') === -1) && $attr.duSmoothScroll === '') return;
+
+        var id = $attr.href ? $attr.href.replace(/.*(?=#[^\s]+$)/, '').substring(1) : $attr.duSmoothScroll;
+
+        var target = document.getElementById(id) || document.getElementsByName(id)[0];
+        if(!target || !target.getBoundingClientRect) return;
+
+        if (e.stopPropagation) e.stopPropagation();
+        if (e.preventDefault) e.preventDefault();
+
+        var offset    = $attr.offset ? parseInt($attr.offset, 10) : duScrollOffset;
+        var duration  = $attr.duration ? parseInt($attr.duration, 10) : duScrollDuration;
+        var container = scrollContainerAPI.getContainer($scope);
+
+        container.duScrollToElement(
+          angular.element(target),
+          isNaN(offset) ? 0 : offset,
+          isNaN(duration) ? 0 : duration
+        );
+      });
+    }
+  };
+}]);
+
+
+angular.module('duScroll.spyContext', ['duScroll.spyAPI'])
+.directive('duSpyContext', ["spyAPI", function(spyAPI) {
+  'use strict';
+
+  return {
+    restrict: 'A',
+    scope: true,
+    compile: function compile(tElement, tAttrs, transclude) {
+      return {
+        pre: function preLink($scope, iElement, iAttrs, controller) {
+          spyAPI.createContext($scope);
+        }
+      };
+    }
+  };
+}]);
+
+
+angular.module('duScroll.scrollContainer', ['duScroll.scrollContainerAPI'])
+.directive('duScrollContainer', ["scrollContainerAPI", function(scrollContainerAPI){
+  'use strict';
+
+  return {
+    restrict: 'A',
+    scope: true,
+    compile: function compile(tElement, tAttrs, transclude) {
+      return {
+        pre: function preLink($scope, iElement, iAttrs, controller) {
+          iAttrs.$observe('duScrollContainer', function(element) {
+            if(angular.isString(element)) {
+              element = document.getElementById(element);
+            }
+
+            element = (angular.isElement(element) ? angular.element(element) : iElement);
+            scrollContainerAPI.setContainer($scope, element);
+            $scope.$on('$destroy', function() {
+              scrollContainerAPI.removeContainer($scope);
+            });
+          });
+        }
+      };
+    }
+  };
+}]);
+
+
+angular.module('duScroll.scrollspy', ['duScroll.spyAPI'])
+.directive('duScrollspy', ["spyAPI", "duScrollOffset", "$timeout", "$rootScope", function(spyAPI, duScrollOffset, $timeout, $rootScope) {
+  'use strict';
+
+  var Spy = function(targetElementOrId, $scope, $element, offset) {
+    if(angular.isElement(targetElementOrId)) {
+      this.target = targetElementOrId;
+    } else if(angular.isString(targetElementOrId)) {
+      this.targetId = targetElementOrId;
+    }
+    this.$scope = $scope;
+    this.$element = $element;
+    this.offset = offset;
+  };
+
+  Spy.prototype.getTargetElement = function() {
+    if (!this.target && this.targetId) {
+      this.target = document.getElementById(this.targetId) || document.getElementsByName(this.targetId)[0];
+    }
+    return this.target;
+  };
+
+  Spy.prototype.getTargetPosition = function() {
+    var target = this.getTargetElement();
+    if(target) {
+      return target.getBoundingClientRect();
+    }
+  };
+
+  Spy.prototype.flushTargetCache = function() {
+    if(this.targetId) {
+      this.target = undefined;
+    }
+  };
+
+  return {
+    link: function ($scope, $element, $attr) {
+      var href = $attr.ngHref || $attr.href;
+      var targetId;
+
+      if (href && href.indexOf('#') !== -1) {
+        targetId = href.replace(/.*(?=#[^\s]+$)/, '').substring(1);
+      } else if($attr.duScrollspy) {
+        targetId = $attr.duScrollspy;
+      } else if($attr.duSmoothScroll) {
+        targetId = $attr.duSmoothScroll;
+      }
+      if(!targetId) return;
+
+      // Run this in the next execution loop so that the scroll context has a chance
+      // to initialize
+      var timeoutPromise = $timeout(function() {
+        var spy = new Spy(targetId, $scope, $element, -($attr.offset ? parseInt($attr.offset, 10) : duScrollOffset));
+        spyAPI.addSpy(spy);
+
+        $scope.$on('$locationChangeSuccess', spy.flushTargetCache.bind(spy));
+        var deregisterOnStateChange = $rootScope.$on('$stateChangeSuccess', spy.flushTargetCache.bind(spy));
+        $scope.$on('$destroy', function() {
+          spyAPI.removeSpy(spy);
+          deregisterOnStateChange();
+        });
+      }, 0, false);
+      $scope.$on('$destroy', function() {$timeout.cancel(timeoutPromise);});
+    }
+  };
+}]);
+
+},{}],74:[function(require,module,exports){
+require('angular');
+require('./angular-scroll');
+
+module.exports = 'duScroll';
+
+},{"./angular-scroll":73,"angular":90}],75:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var ng_from_import = require("angular");
 var ng_from_global = angular;
 exports.ng = (ng_from_import && ng_from_import.module) ? ng_from_import : ng_from_global;
 
-},{"angular":88}],74:[function(require,module,exports){
+},{"angular":90}],76:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
@@ -8918,7 +9562,7 @@ angular_1.ng.module('ui.router.state')
     .directive('uiSrefActiveEq', uiSrefActive)
     .directive('uiState', uiState);
 
-},{"../angular":73,"@uirouter/core":21}],75:[function(require,module,exports){
+},{"../angular":75,"@uirouter/core":21}],77:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
@@ -9209,7 +9853,7 @@ function registerControllerCallbacks($q, $transitions, controllerInstance, $scop
 angular_1.ng.module('ui.router.state').directive('uiView', exports.uiView);
 angular_1.ng.module('ui.router.state').directive('uiView', $ViewDirectiveFill);
 
-},{"../angular":73,"../services":79,"../statebuilders/views":83,"@uirouter/core":21,"angular":88}],76:[function(require,module,exports){
+},{"../angular":75,"../services":81,"../statebuilders/views":85,"@uirouter/core":21,"angular":90}],78:[function(require,module,exports){
 "use strict";
 /**
  * Main entry point for angular 1.x build
@@ -9233,7 +9877,7 @@ require("./directives/viewDirective");
 require("./viewScroll");
 exports.default = "ui.router";
 
-},{"./directives/stateDirectives":74,"./directives/viewDirective":75,"./injectables":77,"./services":79,"./stateFilters":80,"./stateProvider":81,"./statebuilders/views":83,"./urlRouterProvider":85,"./viewScroll":86,"@uirouter/core":21}],77:[function(require,module,exports){
+},{"./directives/stateDirectives":76,"./directives/viewDirective":77,"./injectables":79,"./services":81,"./stateFilters":82,"./stateProvider":83,"./statebuilders/views":85,"./urlRouterProvider":87,"./viewScroll":88,"@uirouter/core":21}],79:[function(require,module,exports){
 "use strict";
 /**
  * # Angular 1 injectable services
@@ -9602,7 +10246,7 @@ var $urlMatcherFactory;
  */
 var $urlMatcherFactoryProvider;
 
-},{}],78:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@uirouter/core");
@@ -9678,7 +10322,7 @@ var Ng1LocationServices = (function () {
 }());
 exports.Ng1LocationServices = Ng1LocationServices;
 
-},{"@uirouter/core":21}],79:[function(require,module,exports){
+},{"@uirouter/core":21}],81:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
@@ -9795,7 +10439,7 @@ exports.getLocals = function (ctx) {
     return tuples.reduce(core_1.applyPairs, {});
 };
 
-},{"./angular":73,"./locationServices":78,"./stateProvider":81,"./statebuilders/onEnterExitRetain":82,"./statebuilders/views":83,"./templateFactory":84,"./urlRouterProvider":85,"@uirouter/core":21}],80:[function(require,module,exports){
+},{"./angular":75,"./locationServices":80,"./stateProvider":83,"./statebuilders/onEnterExitRetain":84,"./statebuilders/views":85,"./templateFactory":86,"./urlRouterProvider":87,"@uirouter/core":21}],82:[function(require,module,exports){
 "use strict";
 /** @module ng1 */ /** for typedoc */
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -9842,7 +10486,7 @@ angular_1.ng.module('ui.router.state')
     .filter('isState', $IsStateFilter)
     .filter('includedByState', $IncludedByStateFilter);
 
-},{"./angular":73}],81:[function(require,module,exports){
+},{"./angular":75}],83:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /** @module ng1 */ /** for typedoc */
@@ -9983,7 +10627,7 @@ var StateProvider = (function () {
 }());
 exports.StateProvider = StateProvider;
 
-},{"@uirouter/core":21}],82:[function(require,module,exports){
+},{"@uirouter/core":21}],84:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /** @module ng1 */ /** */
@@ -10009,7 +10653,7 @@ exports.getStateHookBuilder = function (hookName) {
     };
 };
 
-},{"../services":79,"@uirouter/core":21}],83:[function(require,module,exports){
+},{"../services":81,"@uirouter/core":21}],85:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@uirouter/core");
@@ -10119,7 +10763,7 @@ var Ng1ViewConfig = (function () {
 }());
 exports.Ng1ViewConfig = Ng1ViewConfig;
 
-},{"@uirouter/core":21}],84:[function(require,module,exports){
+},{"@uirouter/core":21}],86:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /** @module view */
@@ -10314,7 +10958,7 @@ var scopeBindings = function (bindingsObj) { return Object.keys(bindingsObj || {
     .filter(function (tuple) { return core_1.isDefined(tuple) && core_1.isArray(tuple[1]); })
     .map(function (tuple) { return ({ name: tuple[1][2] || tuple[0], type: tuple[1][1] }); }); };
 
-},{"./angular":73,"@uirouter/core":21}],85:[function(require,module,exports){
+},{"./angular":75,"@uirouter/core":21}],87:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /** @module url */ /** */
@@ -10521,7 +11165,7 @@ var UrlRouterProvider = (function () {
 }());
 exports.UrlRouterProvider = UrlRouterProvider;
 
-},{"@uirouter/core":21}],86:[function(require,module,exports){
+},{"@uirouter/core":21}],88:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /** @module ng1 */ /** */
@@ -10545,7 +11189,7 @@ function $ViewScrollProvider() {
 }
 angular_1.ng.module('ui.router.state').provider('$uiViewScroll', $ViewScrollProvider);
 
-},{"./angular":73}],87:[function(require,module,exports){
+},{"./angular":75}],89:[function(require,module,exports){
 /**
  * @license AngularJS v1.6.8
  * (c) 2010-2017 Google, Inc. http://angularjs.org
@@ -44801,11 +45445,11 @@ $provide.value("$locale", {
 })(window);
 
 !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
-},{}],88:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 require('./angular');
 module.exports = angular;
 
-},{"./angular":87}],89:[function(require,module,exports){
+},{"./angular":89}],91:[function(require,module,exports){
 'use strict';
 
 var _angular = require('angular');
@@ -44826,6 +45470,8 @@ var _app6 = _interopRequireDefault(_app5);
 
 require('angular-ui-router');
 
+require('angular-scroll');
+
 require('./config/app.templates');
 
 require('./layout');
@@ -44842,11 +45488,13 @@ require('./dashboard');
 
 require('./editor');
 
+require('./filters');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var requires = ['ui.router', 'templates', 'app.services', 'app.layout', 'app.home', 'app.components', 'app.login', 'app.dashboard', 'app.editor'];
+var requires = ['ui.router', 'duScroll', 'templates', 'app.services', 'app.layout', 'app.home', 'app.components', 'app.login', 'app.dashboard', 'app.editor', 'app.filters'];
 
-window.app = _angular2.default.module('app', requires);
+window.app = _angular2.default.module('app', requires).value('duScrollOffset', 80);
 
 _angular2.default.module('app').constant('AppConstants', _app2.default);
 _angular2.default.module('app').config(_app4.default);
@@ -44856,23 +45504,42 @@ _angular2.default.bootstrap(document, ['app'], {
 	strictDi: false
 });
 
-},{"./components":91,"./config/app.config":93,"./config/app.constants":94,"./config/app.run":95,"./config/app.templates":96,"./dashboard":99,"./editor":102,"./home":105,"./layout":108,"./login":109,"./services":113,"angular":88,"angular-ui-router":76}],90:[function(require,module,exports){
+},{"./components":93,"./config/app.config":95,"./config/app.constants":96,"./config/app.run":97,"./config/app.templates":98,"./dashboard":101,"./editor":104,"./filters":105,"./home":108,"./layout":111,"./login":112,"./services":116,"angular":90,"angular-scroll":74,"angular-ui-router":78}],92:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var FilmListCtrl = function FilmListCtrl(AppConstants, $scope) {
-  'ngInject';
+var FilmListCtrl = function () {
+  FilmListCtrl.$inject = ["AppConstants", "$scope", "Film"];
+  function FilmListCtrl(AppConstants, $scope, Film) {
+    'ngInject';
 
-  _classCallCheck(this, FilmListCtrl);
+    _classCallCheck(this, FilmListCtrl);
 
-  this.appName = AppConstants.appName;
-};
-FilmListCtrl.$inject = ["AppConstants", "$scope"];
+    this.appName = AppConstants.appName;
+    this._Film = Film;
+    this.films = [];
+  }
+
+  _createClass(FilmListCtrl, [{
+    key: '$onInit',
+    value: function $onInit() {
+      var _this = this;
+
+      this._Film.get().then(function (result) {
+        _this.films = result;
+      });
+    }
+  }]);
+
+  return FilmListCtrl;
+}();
 
 var FilmList = {
   controller: FilmListCtrl,
@@ -44881,7 +45548,7 @@ var FilmList = {
 
 exports.default = FilmList;
 
-},{}],91:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -44910,7 +45577,7 @@ componentsModule.component('filmList', _filmlist2.default);
 
 exports.default = componentsModule;
 
-},{"./filmlist.component":90,"./weblist.component":92,"angular":88}],92:[function(require,module,exports){
+},{"./filmlist.component":92,"./weblist.component":94,"angular":90}],94:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -44954,7 +45621,7 @@ var WebList = {
 
 exports.default = WebList;
 
-},{}],93:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 'use strict';
 
 AppConfig.$inject = ["$httpProvider", "$stateProvider", "$locationProvider", "$urlRouterProvider"];
@@ -44979,7 +45646,7 @@ function AppConfig($httpProvider, $stateProvider, $locationProvider, $urlRouterP
 
 exports.default = AppConfig;
 
-},{}],94:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 (function (__dirname){
 'use strict';
 
@@ -44995,7 +45662,7 @@ var AppConstants = {
 exports.default = AppConstants;
 
 }).call(this,"/public\\javascripts\\config")
-},{}],95:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 'use strict';
 
 AppRun.$inject = ["AppConstants", "$rootScope"];
@@ -45024,22 +45691,22 @@ function AppRun(AppConstants, $rootScope) {
 
 exports.default = AppRun;
 
-},{}],96:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 'use strict';
 
 angular.module('templates', []).run(['$templateCache', function ($templateCache) {
-  $templateCache.put('components/film-list.html', '<div class=\'container-fluid\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 col-md-6 pt-3 filmProjectBox\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<h2 class=\'sr-only\'>Web Projects</h2>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t<img class=\'web-bullet img-fluid\' src="https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,q_100,w_150/v1515783507/001-ticket_n6dh11.svg">\r\n\t\t\t\t</div><!--End of col-sm-3-->\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<h3 class=\'h2 d-block d-sm-none pt-1\'>Xmas Timelapse</h3>\r\n\t\t\t\t\t<p class=\'display-3 d-none d-sm-block d-md-none\'>Xmas Timelapse</p>\r\n\t\t\t\t\t<p class=\'h1 d-none d-md-block d-lg-none pt-2\'>Xmas Timelapse</p>\r\n\t\t\t\t\t<p class=\'display-4 d-none d-lg-block pt-3\'>Xmas Timelapse</p>\r\n\t\t\t\t</div><!--End of col-sm-9-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<img class=\'cal-glyph\' src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515720530/match_pk0wfk.svg">\r\n\t\t\t\t\t<span class=\'d-inline-block d-xl-none\'>Nov 17 - Dec 17</span>\r\n\t\t\t\t\t<span class=\'h1 d-none d-xl-inline-block\'>Nov 17</span>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<div class=\'col-12 text-center\'>\r\n\t\t\t\t\t<p class=\'d-xl-none\'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\r\n\t\t\t\t\ttempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\r\n\t\t\t\t\tquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\r\n\t\t\t\t\tconsequat. Duis aute irure dolor in reprehenderit in voluptate velit esse\r\n\t\t\t\t\tcillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non\r\n\t\t\t\t\tproident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\r\n\t\t\t\t\t<p class=\'h2 d-none d-xl-block\'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\r\n\t\t\t\t\ttempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\r\n\t\t\t\t\tquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\r\n\t\t\t\t\tconsequat. Duis aute irure dolor in reprehenderit in voluptate velit esse\r\n\t\t\t\t\tcillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non\r\n\t\t\t\t\tproident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\'col-12 col-md-6 pb-3 screen-bg\'>\r\n\t\t\t<p class=\'sr-only\'>Screen Box</p>\r\n\t\t\t<div class="embed-responsive embed-responsive-16by9 mt-5">\r\n\t\t\t  <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/LiSO5_DIx8A" allowfullscreen></iframe>\r\n\t\t\t</div>\r\n\t\t</div><!--marigoldBox-->\r\n\t</div>\r\n</div>');
-  $templateCache.put('components/web-list.html', '<div class=\'container-fluid\'>\r\n\t<div class=\'row\' ng-repeat="website in $ctrl.websites">\r\n\t\t<div class=\'col-12 col-md-6 d-none d-md-block marigold-bg\'>\r\n\t\t\t<p class=\'sr-only\'>Marigold Box</p>\r\n\t\t</div><!--marigoldBox-->\r\n\t\t<div class=\'col-12 col-md-6 pt-3 webProjectBox\'>\r\n\t\t\t<h2 class=\'sr-only\'>Web Projects</h2>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t<img class=\'web-bullet img-fluid\' src="https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,q_100,w_150/v1515711777/pennant_z0xwyy.svg">\r\n\t\t\t\t</div><!--End of col-sm-3-->\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<h3 class=\'h1 d-block d-sm-none\'>{{website.title}}</h3>\r\n\t\t\t\t\t<p class=\'display-2 d-none d-sm-block d-md-none\'>{{website.title}}</p>\r\n\t\t\t\t\t<p class=\'display-4 d-none d-md-block d-lg-none\'>{{website.title}}</p>\r\n\t\t\t\t\t<p class=\'display-2 d-none d-lg-block\'>{{website.title}}</p>\r\n\t\t\t\t</div><!--End of col-sm-9-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<img class=\'cal-glyph\' src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515720530/match_pk0wfk.svg">\r\n\t\t\t\t\t<span class=\'d-inline-block d-xl-none\'>Nov 17 - Dec 17</span>\r\n\t\t\t\t\t<span class=\'h1 d-none d-xl-inline-block\'>Nov 17 - Dec 17</span>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<div class=\'col-12 text-center\'>\r\n\t\t\t\t\t<p class=\'d-xl-none\'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\r\n\t\t\t\t\ttempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\r\n\t\t\t\t\tquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\r\n\t\t\t\t\tconsequat. Duis aute irure dolor in reprehenderit in voluptate velit esse\r\n\t\t\t\t\tcillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non\r\n\t\t\t\t\tproident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\r\n\t\t\t\t\t<p class=\'h2 d-none d-xl-block\'>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\r\n\t\t\t\t\ttempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\r\n\t\t\t\t\tquis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\r\n\t\t\t\t\tconsequat. Duis aute irure dolor in reprehenderit in voluptate velit esse\r\n\t\t\t\t\tcillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non\r\n\t\t\t\t\tproident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-2\'>\r\n\t\t\t\t<div class=\'col-12 col-md-6 text-center\'>\r\n\t\t\t\t\t<a href="https://thebridgebilliards.herokuapp.com/"><u class=\'view-link\'><span class=\'h4\'><i class=\'fa fa-eye\' aria-hidden="true"></i> View on the Web</span></u></a>\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-md-6 text-center\'>\r\n\t\t\t\t\t<a href="https://github.com/RawleJuglal/bridge"><u class=\'view-link\'><span class=\'h4\'><i class=\'fa fa-github\' aria-hidden="true"></i> View on Github</span></u></a>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<ul class="nav nav-pills">\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">MongoDB</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">ExpressJS</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">AngularJS</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">NodeJS</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t</ul>\r\n\t\t\t</div>\r\n\t\t</div><!--Web Project Container-->\r\n\t</div><!--End of row-->\r\n</div><!--End of container-->');
-  $templateCache.put('dashboard/dashboard.html', '<div class=\'container-fluid steel-bg\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t<h2 class=\'marigold\'>Web Projects</h2>\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1516036261/TheBridge_Frame_rddziy.png" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div><!--End of col-xl-4-->\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1516036261/TheBridge_Frame_rddziy.png" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div><!--End of col-xl-4-->\t\t\t\t  \r\n\t\t\t</div>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t<h2 class=\'marigold\'>Film Projects</h2>\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1516036261/TheBridge_Frame_rddziy.png" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1516036261/TheBridge_Frame_rddziy.png" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div><!--End of col-xl-4-->\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1516036261/TheBridge_Frame_rddziy.png" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div><!--End of col-xl-4-->\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1516036261/TheBridge_Frame_rddziy.png" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div><!--End of col-xl-4-->\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\'col-12 col-xl-7\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 col-xl-9\'>\r\n\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t\t\t<h2 class=\'marigold\'>Blogs</h2>\r\n\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'card-text\'>Dec 17,2018</p>\r\n\t\t\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="btn btn-link"><i class=\'fa fa-comments\' aria-hidden="true"></i></button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t\t\t</div>\r\n\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-3\'>\r\n\t\t\t\t\t<div class="dropdown mt-5">\r\n\t\t\t\t\t  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\r\n\t\t\t\t\t    Add...\r\n\t\t\t\t\t  </button>\r\n\t\t\t\t\t  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">\r\n\t\t\t\t\t    <button ui-sref="app.editor" class="dropdown-item" type="button">New Web Project</button>\r\n\t\t\t\t\t    <button class="dropdown-item" type="button">New Film Project</button>\r\n\t\t\t\t\t    <button class="dropdown-item" type="button">New Blog Post</button>\r\n\t\t\t\t\t  </div>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t</div><!--End of row-->\r\n</div><!--End of container-->');
-  $templateCache.put('editor/editor.html', '<div>\r\n\t<p>The editor html page</p>\r\n</div>');
-  $templateCache.put('home/home.html', '<div class="jumbotron jumbotron-fluid">\r\n  <div class="container">\r\n    <h1 class="display-4">Fluid jumbotron</h1>\r\n    <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>\r\n  </div>\r\n</div>\r\n\r\n<web-list></web-list>\r\n<film-list></film-list>');
+  $templateCache.put('components/film-list.html', '<div id=\'film\' class=\'container-fluid project-container\'>\r\n\t<div class=\'row\' ng-repeat="film in $ctrl.films">\r\n\t\t<div class=\'col-12 col-md-6 pt-3 filmProjectBox\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<h2 class=\'sr-only\'>Film Projects</h2>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t<img class=\'web-bullet img-fluid\' src="https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,q_100,w_150/v1515783507/001-ticket_n6dh11.svg">\r\n\t\t\t\t</div><!--End of col-sm-3-->\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<h3 class=\'h2 d-block d-sm-none pt-1\'>{{film.title}}</h3>\r\n\t\t\t\t\t<p class=\'display-3 d-none d-sm-block d-md-none\'>{{film.title}}</p>\r\n\t\t\t\t\t<p class=\'h1 d-none d-md-block d-lg-none pt-2\'>{{film.title}}</p>\r\n\t\t\t\t\t<p class=\'display-4 d-none d-lg-block pt-3\'>{{film.title}}</p>\r\n\t\t\t\t</div><!--End of col-sm-9-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<img class=\'cal-glyph\' src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515720530/match_pk0wfk.svg">\r\n\t\t\t\t\t<span class=\'d-inline-block d-xl-none\'>{{film.publishDate|date:\'MMM\'}} \'{{film.publishDate|date:"yy"}}</span>\r\n\t\t\t\t\t<span class=\'h1 d-none d-xl-inline-block\'>{{film.publishDate|date:\'MMM\'}} \'{{film.publishDate|date:"yy"}}</span>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<div class=\'col-12 text-center\'>\r\n\t\t\t\t\t<p class=\'d-xl-none\'>{{film.description}}</p>\r\n\t\t\t\t\t<p class=\'h2 d-none d-xl-block\'>{{film.description}}</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\'col-12 col-md-6 pb-3 screen-bg\'>\r\n\t\t\t<p class=\'sr-only\'>Screen Box</p>\r\n\t\t\t<div class="embed-responsive embed-responsive-16by9 mt-5">\r\n\t\t\t  <iframe class="embed-responsive-item" ng-src="{{film.linkToVideo | trusted}}" allowfullscreen></iframe>\r\n\t\t\t</div>\r\n\t\t</div><!--marigoldBox-->\r\n\t</div>\r\n</div>');
+  $templateCache.put('components/web-list.html', '<div id=\'web\' class=\'container-fluid project-container\'>\r\n\t<div class=\'row\' ng-repeat="website in $ctrl.websites">\r\n\t\t<div class=\'col-12 col-md-6 d-none d-md-block marigold-bg\'>\r\n\t\t\t<p class=\'sr-only\'>Marigold Box</p>\r\n\t\t</div><!--marigoldBox-->\r\n\t\t<div class=\'col-12 col-md-6 pt-3 webProjectBox\'>\r\n\t\t\t<h2 class=\'sr-only\'>Web Projects</h2>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t<img class=\'web-bullet img-fluid\' src="https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,q_100,w_150/v1515711777/pennant_z0xwyy.svg">\r\n\t\t\t\t</div><!--End of col-sm-3-->\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<h3 class=\'h1 d-block d-sm-none\'>{{website.title}}</h3>\r\n\t\t\t\t\t<p class=\'display-2 d-none d-sm-block d-md-none\'>{{website.title}}</p>\r\n\t\t\t\t\t<p class=\'display-4 d-none d-md-block d-lg-none\'>{{website.title}}</p>\r\n\t\t\t\t\t<p class=\'display-2 d-none d-lg-block\'>{{website.title}}</p>\r\n\t\t\t\t</div><!--End of col-sm-9-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<img class=\'cal-glyph\' src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515720530/match_pk0wfk.svg">\r\n\t\t\t\t\t<span class=\'d-inline-block d-xl-none\'>{{website.startDate|date: "MMM"}} \'{{website.startDate|date:"yy"}} - {{website.endDate|date:"MMM"}} \'{{website.endDate|date:"yy"}}</span>\r\n\t\t\t\t\t<span class=\'h1 d-none d-xl-inline-block\'>{{website.startDate|date:"MMM"}} \'{{website.startDate|date:"yy"}} - {{website.endDate|date:"MMM"}} \'{{website.endDate|date:"yy"}}</span>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<div class=\'col-12 text-center\'>\r\n\t\t\t\t\t<p class=\'d-xl-none\'>{{website.description}}</p>\r\n\t\t\t\t\t<p class=\'h2 d-none d-xl-block\'>{{website.description}}</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-2\'>\r\n\t\t\t\t<div class=\'col-12 col-md-6 text-center\'>\r\n\t\t\t\t\t<a href="{{website.linkToWeb}}"><u class=\'view-link\'><span class=\'h4\'><i class=\'fa fa-eye\' aria-hidden="true"></i> View on the Web</span></u></a>\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-md-6 text-center\'>\r\n\t\t\t\t\t<a href="{{website.linkToGithub}}"><u class=\'view-link\'><span class=\'h4\'><i class=\'fa fa-github\' aria-hidden="true"></i> View on Github</span></u></a>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<ul class="nav nav-pills">\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies" ng-repeat="item in website.listOfTechnologies track by $index">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">{{website.listOfTechnologies[$index]}}</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t</ul>\r\n\t\t\t</div>\r\n\t\t</div><!--Web Project Container-->\r\n\t</div><!--End of row-->\r\n</div><!--End of container-->');
+  $templateCache.put('dashboard/dashboard.html', '<div class=\'container-fluid steel-bg\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t<h2 class=\'marigold\'>Web Projects</h2>\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'  ng-repeat="website in $ctrl.websites">\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>{{website.title}}</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close" ng-click="$ctrl.deleteProject(\'web\', website._id)">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" ng-src="{{website.linkImage}}" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>{{website.description}}</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right" ui-sref="app.editor({type:\'website\', slug: website._id})">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div><!--End of col-xl-4-->\t\t\t\t  \r\n\t\t\t</div>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t<h2 class=\'marigold\'>Film Projects</h2>\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\' ng-repeat="film in $ctrl.films">\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>{{film.title}}</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close" ng-click="$ctrl.deleteProject(\'film\', film._id)">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" ng-src="{{film.linkImage}}">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>{{film.description}}</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" ui-sref="app.editor({type:\'film\', slug: film._id})" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\'col-12 col-xl-7\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 col-xl-9\'>\r\n\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t\t\t<h2 class=\'marigold\'>Blogs</h2>\r\n\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'card-text\'>Dec 17,2018</p>\r\n\t\t\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="btn btn-link"><i class=\'fa fa-comments\' aria-hidden="true"></i></button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t\t\t</div>\r\n\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-3\'>\r\n\t\t\t\t\t<div class=\'btn-group\' role="group" aria-label="Button group with nested dropdown">\r\n\t\t\t\t\t\t<div class="btn-group" role="group">\r\n\t\t\t\t\t\t\t<div class="dropdown mt-5">\r\n\t\t\t\t\t\t\t  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\r\n\t\t\t\t\t\t\t    Add...\r\n\t\t\t\t\t\t\t  </button>\r\n\t\t\t\t\t\t\t  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">\r\n\t\t\t\t\t\t\t    <button ui-sref="app.editor({type:\'website\'})" class="dropdown-item denim-btn" type="button">New Web Project</button>\r\n\t\t\t\t\t\t\t    <button ui-sref="app.editor({type:\'film\'})" class="dropdown-item denim-btn" type="button">New Film Project</button>\r\n\t\t\t\t\t\t\t    <button ui-sref="app.editor({type:\'film\'})" class="dropdown-item denim-btn" type="button">New Blog Post</button>\r\n\t\t\t\t\t\t\t  </div>\r\n\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t</div>\t\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t<div class=\'mt-5\'>\r\n\t\t\t\t\t\t\t<button class=\'btn btn-danger\' ng-click="$ctrl.logout()">Logout</button>\r\n\t\t\t\t\t\t</div>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t</div><!--End of row-->\r\n</div><!--End of container-->');
+  $templateCache.put('editor/editor.html', '<div class=\'container-fluid steel-bg p-5 editor-container\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 p-3\'>\r\n\t\t\t<button class=\'btn btn-lg screen-bg denim-btn pull-right\' ng-click="$ctrl.back()">Back</button>\r\n\t\t</div><!--End of col-12-->\r\n\t</div><!--End of row-->\r\n\t<form ng-submit="$ctrl.submitForm()" ng-show="$ctrl.type == \'website\'">\r\n\t\t<fieldset class=\'screen-bg p-5\' ng-disabled=\'$ctrl.isSubmitting\'>\r\n\t\t\t<div class=\'row p-3\'>\r\n\t\t\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectTitle\'>Title</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="text" id=\'projectTitle\' ng-model=\'$ctrl.project.title\'>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectDescription\'>Description</label>\r\n\t\t\t\t\t\t<textarea class=\'form-control\' type="text" id=\'projectDescription\' ng-model=\'$ctrl.project.description\' rows=\'6\'></textarea>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'sr-only\'>Technologies</label>\r\n\t\t\t\t\t\t<ul class=\'nav nav-pills\'>\r\n\t\t\t\t\t\t\t<li class=\'nav-item m-1 btn btn-warning\' ng-repeat="item in $ctrl.project.listOfTechnologies">{{item}} <i class="fa fa-times-circle-o" aria-hidden="true" ng-click=\'$ctrl.removeTag(item)\'></i></li>\r\n\t\t\t\t\t\t</ul>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t</div><!--End of col-xl-5-->\r\n\t\t\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkImage\'>Link to Image</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkImage\' ng-model=\'$ctrl.project.linkImage\'>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkToWeb\'>Link to Website</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkToWeb\' ng-model=\'$ctrl.project.linkToWeb\'>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkToGithub\'>Link to Github</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkToGithub\' ng-model=\'$ctrl.project.linkToGithub\'>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'listOfTechnologies\'>Technology Input</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'listOfTechnologies\' ng-model="$ctrl.tagField" ng-keyup="$event.keyCode == 186 && $ctrl.addTag()" placeholder="add new technologies here">\r\n\t\t\t\t\t</div>\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-2\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'startDate\'> Start Date</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="date" id=\'startDate\' ng-model="$ctrl.project.startDate">\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'endDate\'> End Date</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="date" id=\'endDate\' ng-model="$ctrl.project.endDate">\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t</div><!--End of col-xl-2-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12\'>\r\n\t\t\t\t\t<button class=\'mr-5 btn btn-lg float-right bg-screen denim-btn\' ng-click=\'$ctrl.submit()\'>Save</button>\r\n\t\t\t\t</div><!--End of col-12-->\r\n\t\t\t</div><!--End of row-->\t\r\n\t\t</fieldset>\r\n\t</form>\r\n\r\n\t<form ng-submit=\'$ctrl.submitForm()\' ng-show="$ctrl.type == \'film\'">\r\n\t\t<fieldset class=\'screen-bg p-5\' ng-disabled=\'$ctrl.isSubmitting\'>\r\n\t\t\t<div class=\'row p-3\'>\r\n\t\t\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectTitle\'>Title</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="text" id=\'projectTitle\' ng-model=\'$ctrl.project.title\'>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectDescription\'>Description</label>\r\n\t\t\t\t\t\t<textarea class=\'form-control\' type="text" id=\'projectDescription\' ng-model=\'$ctrl.project.description\' rows=\'6\'></textarea>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t</div><!--End of col-xl-5-->\r\n\t\t\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkImage\'>Link to Image</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkImage\' ng-model=\'$ctrl.project.linkImage\'>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkToVideo\'>Link to Video</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkToVideo\' ng-model=\'$ctrl.project.linkToVideo\'>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t</div><!--End of col-xl-5-->\r\n\t\t\t\t<div class=\'col-12 col-xl-2\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'publishDate\'>Publish Date</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="date" id=\'publishDate\' ng-model=\'$ctrl.project.publishDate\'>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t</div><!--End of col-xl-2-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12\'>\r\n\t\t\t\t\t<button class=\'mr-5 btn btn-lg float-right bg-screen denim-btn\' ng-click=\'$ctrl.submit()\'>Save</button>\r\n\t\t\t\t</div><!--End of col-12-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t</fieldset>\r\n\t</form>\r\n</div><!--End of steel-bg-->');
+  $templateCache.put('home/home.html', '<div class="jumbotron jumbotron-fluid">\r\n  <div class="container">\r\n\r\n  </div>\r\n</div>\r\n\r\n<div class=\'container-fluid\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 col-md-11 offset-md-1 col-xl-10 offset-xl-2\'>\r\n\t\t\t<p class=\'display-1 text-center text-sm-left animated fadeInLeft delay\'>Rawle Juglal</p>\r\n\t\t</div>\r\n\t\t<div class=\'col-12 col-xl-10 offset-xl-1\'>\r\n\t\t\t<p class=\'display-4 text-center text-sm-left animated fadeInRight delay\'>"It\'s hard to beat someone who never quits"</p>\r\n\t\t</div>\r\n\t</div>\r\n\t\r\n</div>\r\n\r\n<web-list ></web-list>\r\n<film-list></film-list>');
   $templateCache.put('layout/app-view.html', '<app-header></app-header>\r\n\r\n<div class=\'content\' ui-view></div>\r\n\r\n<app-footer></app-footer>');
   $templateCache.put('layout/footer.html', '<footer>\r\n    <div class="container-fluid denim-bg">\r\n        <ul class="list-unstyled pt-3">\r\n            <li><a class=\'text-white f6\' ui-sref="app.login"><h2 class=\'d-none\'>Login</h2>LOGIN</a></li>\r\n        </ul>\r\n        \r\n        <div class="row text-white f6">\r\n            <div class="col-sm-6 ml-1">\r\n            </div><!-- col-sm-6-->\r\n            <div class="col-sm-5">\r\n                <span class=\'float-right\'>\r\n                    Developed By: <a class=\'text-white f6\' href="http://www.rawlejuglal.me">rawlejuglal.me</a>.\r\n                </span>\r\n            </div>\r\n        </div><!--End of row -->\r\n        \r\n    </div>\r\n</footer>');
-  $templateCache.put('layout/header.html', '<nav class="navbar fixed-top navbar-expand-md navbar-dark denim-bg">\r\n  <a class="navbar-brand" href="#">\r\n    <img src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515711657/Logo_e1thd9.png" width="30" height="30" alt="">\r\n  </a>\r\n  </a>\r\n  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">\r\n    <span class="navbar-toggler-icon"></span>\r\n  </button>\r\n\r\n  <div class="collapse navbar-collapse" id="navbarSupportedContent">\r\n    <ul class=\'navbar-nav ml-auto\'>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="">Web Projects</a></li>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="">Film Projects</a></li>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="">Blog</a></li>\r\n    </ul>\r\n  </div>\r\n</nav>');
+  $templateCache.put('layout/header.html', '<nav class="navbar fixed-top navbar-expand-md navbar-dark denim-bg">\r\n  <a class="navbar-brand" href="#">\r\n    <img src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515711657/Logo_e1thd9.png" width="30" height="30" alt="">\r\n  </a>\r\n  </a>\r\n  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">\r\n    <span class="navbar-toggler-icon"></span>\r\n  </button>\r\n\r\n  <div class="collapse navbar-collapse" id="navbarSupportedContent">\r\n    <ul class=\'navbar-nav ml-auto\'>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="#web" du-smooth-scroll>Web Projects</a></li>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="#film" du-smooth-scroll>Film Projects</a></li>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="">Blog</a></li>\r\n    </ul>\r\n  </div>\r\n</nav>');
   $templateCache.put('login/login.html', '<div class=\'container-fluid login-container mt-5\'>\r\n\t<div class=\'row mt-5\'>\r\n\t\t<div class=\'col-12 col-sm-6 offset-sm-3 col-md-4 offset-md-4 mt-5 mb-5\'>\r\n\t\t\t<form class=\'steel-bg mt-5 pt-3 pl-2 pr-2 pb-2 rounded-bottom animated bounceInLeft\' ng-submit="$ctrl.submitForm()">\r\n\t\t\t\t<fieldset class=\'text-center\'>\r\n\t\t\t\t\t<p class=\'h1 marigold\'>LOGIN</p>\r\n\t\t\t\t\t<p class=\'marigold\'>If you\'re not an admin you are in the wrong place</p>\r\n\t\t\t\t</fieldset>\r\n\t\t\t\t<fieldset class=\'screen-bg p-2\'>\r\n\t\t\t\t\t<fieldset ng-disabled="$ctrl.isSubmitting">\r\n\t\t\t\t  \t\t<fieldset class=\'form-group\'>\r\n\t\t\t\t  \t\t\t<div class="input-group input-group-lg mb-3">\r\n\t\t\t\t\t\t\t  <input type="text" class="form-control form-control-lg denim" placeholder="Username" \r\n\t\t\t\t\t\t\t  ng-model="$ctrl.formData.username" required\r\n\t\t\t\t\t\t\t  aria-label="username" aria-describedby="person-icon">\r\n\t\t\t\t\t\t\t  <div class="input-group-append">\r\n\t\t\t\t\t\t\t    <span class="input-group-text" id="person-icon"><i class=\'fa fa-user\' aria-hidden="true"></i></span>\r\n\t\t\t\t\t\t\t  </div>\r\n\t\t\t\t\t\t\t</div>\r\n\t\t\t\t  \t\t</fieldset>\r\n\t                    <fieldset class=\'form-group\'>\r\n\t\t\t\t  \t\t\t<div class="input-group input-group-lg mb-3">\r\n\t\t\t\t\t\t\t  <input type="text" class="form-control form-control-lg denim" placeholder="Password" \r\n\t\t\t\t\t\t\t  ng-model="$ctrl.formData.password" required\r\n\t\t\t\t\t\t\t  aria-label="password" aria-describedby="lock-icon">\r\n\t\t\t\t\t\t\t  <div class="input-group-append">\r\n\t\t\t\t\t\t\t    <span class="input-group-text" id="lock-icon"><i class=\'fa fa-lock\' aria-hidden="true"></i></span>\r\n\t\t\t\t\t\t\t  </div>\r\n\t\t\t\t\t\t\t</div>\r\n\t\t\t\t  \t\t</fieldset>\r\n\t                        <!-- button will use auth.controller.js var stored in title\r\n\t                         which it receives from auth.config.js -->\r\n\t                        <button class="btn btn-sm btn-light float-right" type="submit" ng-bind="$ctrl.title">\r\n\t                        </button>\r\n\t\t\t\t  </fieldset>\r\n\t\t\t\t</fieldset>\t\r\n\t\t\t</form>\r\n\t\t</div>\r\n\t</div>\r\n</div>');
 }]);
 
-},{}],97:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 'use strict';
 
 DashboardConfig.$inject = ["$stateProvider"];
@@ -45060,74 +45727,92 @@ function DashboardConfig($stateProvider) {
 
 exports.default = DashboardConfig;
 
-},{}],98:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var DashboardCtrl = function DashboardCtrl(AppConstants, User, $state) {
-  'ngInject';
+var DashboardCtrl = function () {
+    DashboardCtrl.$inject = ["AppConstants", "User", "$state", "Film", "Web"];
+    function DashboardCtrl(AppConstants, User, $state, Film, Web) {
+        'ngInject';
 
-  _classCallCheck(this, DashboardCtrl);
+        _classCallCheck(this, DashboardCtrl);
 
-  this._AppConstants = AppConstants;
-  this._User = User;
-  // this._Post = Post;
-  // this._Resume = Resume;
-  this._$state = $state;
-  // this.posts = posts;
-  // this.resumes = resumes;
+        this._AppConstants = AppConstants;
+        this._User = User;
+        this._Film = Film;
+        this._Web = Web;
+        this._$state = $state;
+        this.films = [];
+        this.websites = [];
 
-  this.logout = User.logout.bind(User);
-}
+        this.logout = User.logout.bind(User);
+    }
 
-// submitForm() {
-//   this.isSubmitting = true;
-//   this._Post.addPost(this.formData).then(
-//     () => {
-//       this.formData = {};
-//       this.isSubmitting = false;
-//       this._$state.go(this._$state.$current, null, { reload: true });
-//     },
-//     (err) => {
-//       this.isSubmitting = false;
-//       this.errors = err.data.errors;
-//     }
-//   )
-// }
+    _createClass(DashboardCtrl, [{
+        key: '$onInit',
+        value: function $onInit() {
+            var _this = this;
 
-// deletePost(slug){
-//   this._Post.destroy(slug).then(
-//     () => {
-//       this._$state.go(this._$state.$current, null, { reload: true });
-//     },
-//     (err) => {
-//       this.errors = err.data.errors;
-//     }
-//   )
-// }
+            this._Film.get().then(function (result) {
+                _this.films = result;
+            });
 
-// deleteResume(slug){
-//   this._Resume.destroy(slug).then(
-//     () => {
-//       this._$state.go(this._$state.$current, null, { reload: true });
-//     },
-//     (err) => {
-//       this.errors = err.data.errors;
-//     }
-//   )
-// }
+            this._Web.get().then(function (result) {
+                _this.websites = result;
+            });
+        }
+        // submitForm() {
+        //   this.isSubmitting = true;
+        //   this._Post.addPost(this.formData).then(
+        //     () => {
+        //       this.formData = {};
+        //       this.isSubmitting = false;
+        //       this._$state.go(this._$state.$current, null, { reload: true });
+        //     },
+        //     (err) => {
+        //       this.isSubmitting = false;
+        //       this.errors = err.data.errors;
+        //     }
+        //   )
+        // }
 
-;
-DashboardCtrl.$inject = ["AppConstants", "User", "$state"];
+    }, {
+        key: 'deleteProject',
+        value: function deleteProject(type, slug) {
+            var _this2 = this;
+
+            if (type == 'film') {
+                this._Film.destroy(slug).then(function () {
+                    _this2._$state.go(_this2._$state.$current, null, { reload: true });
+                }, function (err) {
+                    _this2.errors = err.data.errors;
+                });
+            } else if (type == 'web') {
+                this._Web.destroy(slug).then(function () {
+                    _this2._$state.go(_this2._$state.$current, null, { reload: true });
+                }, function (err) {
+                    _this2.errors = err.data.errors;
+                });
+            } else {
+                console.log('not recognizing film or web project');
+            }
+        }
+    }]);
+
+    return DashboardCtrl;
+}();
 
 exports.default = DashboardCtrl;
 
-},{}],99:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45156,7 +45841,7 @@ dashboardModule.controller('DashboardCtrl', _dashboard4.default);
 
 exports.default = dashboardModule;
 
-},{"./dashboard.config":97,"./dashboard.controller":98,"angular":88}],100:[function(require,module,exports){
+},{"./dashboard.config":99,"./dashboard.controller":100,"angular":90}],102:[function(require,module,exports){
 'use strict';
 
 EditorConfig.$inject = ["$stateProvider"];
@@ -45167,37 +45852,128 @@ function EditorConfig($stateProvider) {
   'ngInject';
 
   $stateProvider.state('app.editor', {
-    url: '/editor/:slug',
+    url: '/editor',
+    params: {
+      type: null,
+      slug: null
+    },
     controller: 'EditorCtrl',
     controllerAs: '$ctrl',
     templateUrl: 'editor/editor.html',
-    title: 'Editor'
+    title: 'Editor',
+    resolve: {
+      project: ["Web", "Film", "User", "$state", "$stateParams", function project(Web, Film, User, $state, $stateParams) {
+        if ($stateParams.type == 'website') {
+          if ($stateParams.slug) {
+            return Web.getOne($stateParams.slug).then(function (project) {
+              return project;
+            }, function (err) {
+              return err;
+            });
+          } else {
+            return null;
+          }
+        } else if ($stateParams.type == 'film') {
+          if ($stateParams.slug) {
+            return Film.getOne($stateParams.slug).then(function (project) {
+              return project;
+            }, function (err) {
+              return err;
+            });
+          } else {
+            return null;
+          }
+        }
+      }]
+    }
   });
 };
 
 exports.default = EditorConfig;
 
-},{}],101:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var EditorCtrl = function EditorCtrl($state) {
-  'ngInject';
+var EditorCtrl = function () {
+  EditorCtrl.$inject = ["$state", "Web", "Film", "project", "$stateParams"];
+  function EditorCtrl($state, Web, Film, project, $stateParams) {
+    'ngInject';
 
-  _classCallCheck(this, EditorCtrl);
+    _classCallCheck(this, EditorCtrl);
 
-  this._$state = $state;
-};
-EditorCtrl.$inject = ["$state"];
+    this._$state = $state;
+    this._$stateParams = $stateParams;
+    this._Web = Web;
+    this._Film = Film;
+    this.type = $stateParams.type;
+
+    if (!project) {
+      this.project = {};
+      this.project.listOfTechnologies = [];
+    } else {
+      this.project = project;
+    }
+  }
+
+  _createClass(EditorCtrl, [{
+    key: 'back',
+    value: function back() {
+      this._$state.go('app.dashboard');
+    }
+  }, {
+    key: 'addTag',
+    value: function addTag() {
+      if (!this.project.listOfTechnologies.includes(this.tagField)) {
+        var str = this.tagField.slice(0, -1);
+        this.project.listOfTechnologies.push(str);
+        this.tagField = '';
+      }
+    }
+  }, {
+    key: 'removeTag',
+    value: function removeTag(tagName) {
+      this.project.listOfTechnologies = this.project.listOfTechnologies.filter(function (slug) {
+        return slug != tagName;
+      });
+    }
+  }, {
+    key: 'submit',
+    value: function submit() {
+      var _this = this;
+
+      this.isSubmitting = true;
+      if (this.type == 'website') {
+        this._Web.save(this.project).then(function (newProject) {
+          _this._$state.go('app.dashboard');
+        }, function (err) {
+          _this.isSubmitting = false;
+          _this.errors = err.data.errors;
+        });
+      } else if (this.type == 'film') {
+        this._Film.save(this.project).then(function (newProject) {
+          _this._$state.go('app.dashboard');
+        }, function (err) {
+          _this.isSubmitting = false;
+          _this.errors = err.data.errors;
+        });
+      }
+    }
+  }]);
+
+  return EditorCtrl;
+}();
 
 exports.default = EditorCtrl;
 
-},{}],102:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45231,7 +46007,28 @@ editorModule.controller('EditorCtrl', _editor4.default);
 
 exports.default = editorModule;
 
-},{"./editor.config":100,"./editor.controller":101,"angular":88}],103:[function(require,module,exports){
+},{"./editor.config":102,"./editor.controller":103,"angular":90}],105:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _angular = require('angular');
+
+var _angular2 = _interopRequireDefault(_angular);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var filtersModule = _angular2.default.module('app.filters', []).filter('trusted', function ($sce) {
+	return function (url) {
+		return $sce.trustAsResourceUrl(url);
+	};
+});
+
+exports.default = filtersModule;
+
+},{"angular":90}],106:[function(require,module,exports){
 'use strict';
 
 HomeConfig.$inject = ["$stateProvider"];
@@ -45252,7 +46049,7 @@ function HomeConfig($stateProvider) {
 
 exports.default = HomeConfig;
 
-},{}],104:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45272,7 +46069,7 @@ HomeCtrl.$inject = ["AppConstants"];
 
 exports.default = HomeCtrl;
 
-},{}],105:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45301,7 +46098,7 @@ homeModule.controller('HomeCtrl', _home4.default);
 
 exports.default = homeModule;
 
-},{"./home.config":103,"./home.controller":104,"angular":88}],106:[function(require,module,exports){
+},{"./home.config":106,"./home.controller":107,"angular":90}],109:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45328,7 +46125,7 @@ var AppFooter = {
 
 exports.default = AppFooter;
 
-},{}],107:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45353,7 +46150,7 @@ var AppHeader = {
 
 exports.default = AppHeader;
 
-},{}],108:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45384,7 +46181,7 @@ layoutModule.component('appFooter', _footer2.default);
 
 exports.default = layoutModule;
 
-},{"./footer.component":106,"./header.component":107,"angular":88}],109:[function(require,module,exports){
+},{"./footer.component":109,"./header.component":110,"angular":90}],112:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45413,7 +46210,7 @@ loginModule.controller('LoginCtrl', _login4.default);
 
 exports.default = loginModule;
 
-},{"./login.config":110,"./login.controller":111,"angular":88}],110:[function(require,module,exports){
+},{"./login.config":113,"./login.controller":114,"angular":90}],113:[function(require,module,exports){
 'use strict';
 
 LoginConfig.$inject = ["$stateProvider"];
@@ -45434,7 +46231,7 @@ function LoginConfig($stateProvider) {
 
 exports.default = LoginConfig;
 
-},{}],111:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45484,7 +46281,7 @@ var LoginCtrl = function () {
 
 exports.default = LoginCtrl;
 
-},{}],112:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45520,6 +46317,49 @@ var Film = function () {
 
       return deferred.promise;
     }
+  }, {
+    key: 'getOne',
+    value: function getOne(slug) {
+      var deferred = this._$q.defer();
+
+      this._$http({
+        url: '/filmprojects/film/' + slug,
+        method: 'GET'
+      }).then(function (res) {
+        deferred.resolve(res.data);
+      }, function (err) {
+        deferred.reject(err);
+      });
+
+      return deferred.promise;
+    }
+  }, {
+    key: 'destroy',
+    value: function destroy(slug) {
+      return this._$http({
+        url: '/filmprojects/film/' + slug,
+        method: 'DELETE'
+      });
+    }
+  }, {
+    key: 'save',
+    value: function save(project) {
+      var request = {};
+
+      if (project._id) {
+        request.url = '/filmprojects/film/' + project._id;
+        request.method = 'PUT';
+      } else {
+        request.url = '/filmprojects/entry';
+        request.method = 'POST';
+      }
+
+      request.data = project;
+
+      return this._$http(request).then(function (res) {
+        res.data.project;
+      });
+    }
   }]);
 
   return Film;
@@ -45527,7 +46367,7 @@ var Film = function () {
 
 exports.default = Film;
 
-},{}],113:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45570,7 +46410,7 @@ servicesModule.service('Web', _web2.default);
 
 exports.default = servicesModule;
 
-},{"./film.service":112,"./jwt.service":114,"./user.service":115,"./web.service":116,"angular":88}],114:[function(require,module,exports){
+},{"./film.service":115,"./jwt.service":117,"./user.service":118,"./web.service":119,"angular":90}],117:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45614,7 +46454,7 @@ var JWT = function () {
 
 exports.default = JWT;
 
-},{}],115:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45649,6 +46489,7 @@ var User = function () {
 				data: credentials
 			}).then(function (res) {
 				_this._JWT.save(res.data.token);
+				_this.current = res.data;
 				return res;
 			});
 		}
@@ -45665,7 +46506,7 @@ var User = function () {
 
 exports.default = User;
 
-},{}],116:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45701,6 +46542,49 @@ var Website = function () {
 
       return deferred.promise;
     }
+  }, {
+    key: 'getOne',
+    value: function getOne(slug) {
+      var deferred = this._$q.defer();
+
+      this._$http({
+        url: '/webprojects/website/' + slug,
+        method: 'GET'
+      }).then(function (res) {
+        deferred.resolve(res.data);
+      }, function (err) {
+        deferred.reject(err);
+      });
+
+      return deferred.promise;
+    }
+  }, {
+    key: 'save',
+    value: function save(project) {
+      var request = {};
+
+      if (project._id) {
+        request.url = '/webprojects/website/' + project._id;
+        request.method = 'PUT';
+      } else {
+        request.url = '/webprojects/entry';
+        request.method = 'POST';
+      }
+
+      request.data = project;
+
+      return this._$http(request).then(function (res) {
+        res.data.project;
+      });
+    }
+  }, {
+    key: 'destroy',
+    value: function destroy(slug) {
+      return this._$http({
+        url: '/webprojects/website/' + slug,
+        method: 'DELETE'
+      });
+    }
   }]);
 
   return Website;
@@ -45708,4 +46592,4 @@ var Website = function () {
 
 exports.default = Website;
 
-},{}]},{},[89]);
+},{}]},{},[91]);

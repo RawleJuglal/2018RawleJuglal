@@ -1,3 +1,98 @@
-<div>
-	<p>The editor html page</p>
-</div>
+<div class='container-fluid steel-bg p-5 editor-container'>
+	<div class='row'>
+		<div class='col-12 p-3'>
+			<button class='btn btn-lg screen-bg denim-btn pull-right' ng-click="$ctrl.back()">Back</button>
+		</div><!--End of col-12-->
+	</div><!--End of row-->
+	<form ng-submit="$ctrl.submitForm()" ng-show="$ctrl.type == 'website'">
+		<fieldset class='screen-bg p-5' ng-disabled='$ctrl.isSubmitting'>
+			<div class='row p-3'>
+				<div class='col-12 col-xl-5'>
+					<div class='form-group'>
+						<label class='denim h3' for='projectTitle'>Title</label>
+						<input class='form-control' type="text" id='projectTitle' ng-model='$ctrl.project.title'>
+					</div><!--End of form-group-->
+					<div class='form-group'>
+						<label class='denim h3' for='projectDescription'>Description</label>
+						<textarea class='form-control' type="text" id='projectDescription' ng-model='$ctrl.project.description' rows='6'></textarea>
+					</div><!--End of form-group-->
+					<div class='form-group'>
+						<label class='sr-only'>Technologies</label>
+						<ul class='nav nav-pills'>
+							<li class='nav-item m-1 btn btn-warning' ng-repeat="item in $ctrl.project.listOfTechnologies">{{item}} <i class="fa fa-times-circle-o" aria-hidden="true" ng-click='$ctrl.removeTag(item)'></i></li>
+						</ul>
+					</div><!--End of form-group-->
+				</div><!--End of col-xl-5-->
+				<div class='col-12 col-xl-5'>
+					<div class='form-group'>
+						<label class='denim h3' for='linkImage'>Link to Image</label>
+						<input  class='form-control'  type="text" id='linkImage' ng-model='$ctrl.project.linkImage'>
+					</div>
+					<div class='form-group'>
+						<label class='denim h3' for='linkToWeb'>Link to Website</label>
+						<input  class='form-control'  type="text" id='linkToWeb' ng-model='$ctrl.project.linkToWeb'>
+					</div>
+					<div class='form-group'>
+						<label class='denim h3' for='linkToGithub'>Link to Github</label>
+						<input  class='form-control'  type="text" id='linkToGithub' ng-model='$ctrl.project.linkToGithub'>
+					</div>
+					<div class='form-group'>
+						<label class='denim h3' for='listOfTechnologies'>Technology Input</label>
+						<input  class='form-control'  type="text" id='listOfTechnologies' ng-model="$ctrl.tagField" ng-keyup="$event.keyCode == 186 && $ctrl.addTag()" placeholder="add new technologies here">
+					</div>
+				</div>
+				<div class='col-12 col-xl-2'>
+					<div class='form-group'>
+						<label class='denim h3' for='startDate'> Start Date</label>
+						<input class='form-control' type="date" id='startDate' ng-model="$ctrl.project.startDate">
+						<label class='denim h3' for='endDate'> End Date</label>
+						<input class='form-control' type="date" id='endDate' ng-model="$ctrl.project.endDate">
+					</div><!--End of form-group-->
+				</div><!--End of col-xl-2-->
+			</div><!--End of row-->
+			<div class='row'>
+				<div class='col-12'>
+					<button class='mr-5 btn btn-lg float-right bg-screen denim-btn' ng-click='$ctrl.submit()'>Save</button>
+				</div><!--End of col-12-->
+			</div><!--End of row-->	
+		</fieldset>
+	</form>
+
+	<form ng-submit='$ctrl.submitForm()' ng-show="$ctrl.type == 'film'">
+		<fieldset class='screen-bg p-5' ng-disabled='$ctrl.isSubmitting'>
+			<div class='row p-3'>
+				<div class='col-12 col-xl-5'>
+					<div class='form-group'>
+						<label class='denim h3' for='projectTitle'>Title</label>
+						<input class='form-control' type="text" id='projectTitle' ng-model='$ctrl.project.title'>
+					</div><!--End of form-group-->
+					<div class='form-group'>
+						<label class='denim h3' for='projectDescription'>Description</label>
+						<textarea class='form-control' type="text" id='projectDescription' ng-model='$ctrl.project.description' rows='6'></textarea>
+					</div><!--End of form-group-->
+				</div><!--End of col-xl-5-->
+				<div class='col-12 col-xl-5'>
+					<div class='form-group'>
+						<label class='denim h3' for='linkImage'>Link to Image</label>
+						<input  class='form-control'  type="text" id='linkImage' ng-model='$ctrl.project.linkImage'>
+					</div><!--End of form-group-->
+					<div class='form-group'>
+						<label class='denim h3' for='linkToVideo'>Link to Video</label>
+						<input  class='form-control'  type="text" id='linkToVideo' ng-model='$ctrl.project.linkToVideo'>
+					</div>
+				</div><!--End of col-xl-5-->
+				<div class='col-12 col-xl-2'>
+					<div class='form-group'>
+						<label class='denim h3' for='publishDate'>Publish Date</label>
+						<input class='form-control' type="date" id='publishDate' ng-model='$ctrl.project.publishDate'>
+					</div><!--End of form-group-->
+				</div><!--End of col-xl-2-->
+			</div><!--End of row-->
+			<div class='row'>
+				<div class='col-12'>
+					<button class='mr-5 btn btn-lg float-right bg-screen denim-btn' ng-click='$ctrl.submit()'>Save</button>
+				</div><!--End of col-12-->
+			</div><!--End of row-->
+		</fieldset>
+	</form>
+</div><!--End of steel-bg-->

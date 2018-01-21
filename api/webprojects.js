@@ -28,6 +28,7 @@ router.get('/all', function(req, res, next) {
 });
 
 router.post('/entry', function(req, res, next) {
+	console.log(req.body);
 	var project = new WebProject(req.body);
 
 	project.save(function(err, website) {
@@ -46,6 +47,7 @@ router.route('/website/:website_id')
 	  res.json(req.website);
 	})
 	.put(function(req, res, next) {
+		console.log(req.body);
 	  // just an example of maybe updating the user
 	  WebProject.findByIdAndUpdate(req.params.website_id, req.body, {
 	  	overwrite:true,
