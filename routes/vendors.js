@@ -30,4 +30,8 @@ router.get('/scroll', function(req, res, next){
 	res.sendFile('/app/build/vendor/scroll/angular-scroll.min.js');
 });
 
+router.get('/fontAwesome', function(req, res, next){
+  res.sendFile('/app/build/vendor/fontAwesome/css/font-awesome.min.css');
+});
+
 module.exports = router;
