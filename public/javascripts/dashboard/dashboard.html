@@ -65,23 +65,23 @@
 						<div class='col-12 p-1'>
 							<h2 class='marigold'>Blogs</h2>
 						</div>
-						<div class='col-12 col-xl-4 pb-2'>
+						<div class='col-12 col-xl-4 pb-2' ng-repeat="blog in $ctrl.blogs">
 							<div class='card'>
 								<div class='card-header'>
 									<div class='row'>
 										<div class='col-9'>
-											<p class='h5'>Card Title</p>
+											<p class='h5'>{{blog.title}}</p>
 										</div><!--End of col-9-->
 										<div class='col-3'>
-											<button type="button" class="close" aria-label="Close">
+											<button type="button" class="close" aria-label="Close" ng-click="$ctrl.deleteProject('blog', blog._id)">
 											  <span aria-hidden="true">&times;</span>
 											</button>
 										</div><!--End of col-3-->
 									</div><!--End of row-->
 								</div><!--End of card-header-->
 								<div class='card-body'>
-									<p class='card-text'>Dec 17,2018</p>
-									<p class='card-text'>A small description of the website that I will be editing</p>
+									<p class='card-text'>{{blog.publishDate | date:'mediumDate'}}</p>
+									<p class='card-text'>{{blog.body | limitTo: 144:0}}</p>
 								</div><!--End of card-body-->
 								<div class='card-footer'>
 									<div class='row'>
@@ -89,7 +89,7 @@
 											<button type="button" class="btn btn-link"><i class='fa fa-comments' aria-hidden="true"></i></button>
 										</div><!--End of col-9-->
 										<div class='col-3'>
-											<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>
+											<button type="button" ui-sref="app.editor({type:'blog', slug: blog._id})" class="btn btn-dark btn-sm float-right">Edit</button>
 										</div><!--End of col-3-->
 									</div><!--End of row-->
 								</div><!--End of card-footer-->
@@ -107,7 +107,7 @@
 							  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
 							    <button ui-sref="app.editor({type:'website'})" class="dropdown-item denim-btn" type="button">New Web Project</button>
 							    <button ui-sref="app.editor({type:'film'})" class="dropdown-item denim-btn" type="button">New Film Project</button>
-							    <button ui-sref="app.editor({type:'film'})" class="dropdown-item denim-btn" type="button">New Blog Post</button>
+							    <button ui-sref="app.editor({type:'blog'})" class="dropdown-item denim-btn" type="button">New Blog Post</button>
 							  </div>
 							</div>
 						</div>	

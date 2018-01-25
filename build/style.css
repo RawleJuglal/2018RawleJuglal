@@ -77,7 +77,7 @@ a {
 
 
 /* Home Styles */
-.jumbotron{
+.jumbotron-home{
 	background-image: url(https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,h_242,q_100,w_320/v1515706713/jumbotron-bg_julxzs.png);
 	background-size: cover;
 	background-repeat: no-repeat;
@@ -92,7 +92,7 @@ a {
 }
 
 @media (min-width: 576px) { 
-	.jumbotron{
+	.jumbotron-home{
 		background-image: url(https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,h_242,q_100,w_576/v1515706713/jumbotron-bg_julxzs.png);
 	}
 }
@@ -103,7 +103,7 @@ a {
 		margin-top: 80px;
 	}
 
-	.jumbotron{
+	.jumbotron-home{
 		margin-top: 80px;
 		background-image: url(https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,h_242,q_100,w_768/v1515706713/jumbotron-bg_julxzs.png);
 	}
@@ -111,14 +111,14 @@ a {
 
 /* Large devices (desktops, 992px and up)*/
 @media (min-width: 992px) {
-	.jumbotron{
+	.jumbotron-home{
 		background-image: url(https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,h_242,q_100,w_992/v1515706713/jumbotron-bg_julxzs.png);
 	}
 }
 
 /* Extra large devices (large desktops, 1200px and up)*/
 @media (min-width: 1200px) {
-	.jumbotron{
+	.jumbotron-home{
 		background-image: url(https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,h_242,q_100,w_1200/v1515706713/jumbotron-bg_julxzs.png);
 	}
 }
@@ -194,4 +194,17 @@ a {
 	background-color:#1A2930;
 	color:white;
 	transition: color 1s ease, background-color 1s ease; 
+}
+
+/*Blog Styles*/
+#blog-vid{
+	display: block;
+	width:100% !important;
+	height:auto !important;
+	margin-top:-80px;
+}
+
+.vid-container{
+	overflow: hidden;
+	max-height: 600px;
 }

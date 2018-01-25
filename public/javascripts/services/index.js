@@ -15,4 +15,7 @@ servicesModule.service('Film', FilmService);
 import WebService from './web.service';
 servicesModule.service('Web', WebService);
 
+import BlogService from './blog.service';
+servicesModule.service('Blog', BlogService);
+
 export default servicesModule;

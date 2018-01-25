@@ -15,6 +15,7 @@ import './services';
 import './login';
 import './dashboard';
 import './editor';
+import './blog';
 import './filters';
 
 const requires = [
@@ -28,6 +29,7 @@ const requires = [
 	'app.login',
 	'app.dashboard',
 	'app.editor',
+	'app.blog',
 	'app.filters',	
 ];
 

@@ -45488,11 +45488,13 @@ require('./dashboard');
 
 require('./editor');
 
+require('./blog');
+
 require('./filters');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var requires = ['ui.router', 'duScroll', 'templates', 'app.services', 'app.layout', 'app.home', 'app.components', 'app.login', 'app.dashboard', 'app.editor', 'app.filters'];
+var requires = ['ui.router', 'duScroll', 'templates', 'app.services', 'app.layout', 'app.home', 'app.components', 'app.login', 'app.dashboard', 'app.editor', 'app.blog', 'app.filters'];
 
 window.app = _angular2.default.module('app', requires).value('duScrollOffset', 80);
 
@@ -45504,7 +45506,96 @@ _angular2.default.bootstrap(document, ['app'], {
 	strictDi: false
 });
 
-},{"./components":93,"./config/app.config":95,"./config/app.constants":96,"./config/app.run":97,"./config/app.templates":98,"./dashboard":101,"./editor":104,"./filters":105,"./home":108,"./layout":111,"./login":112,"./services":116,"angular":90,"angular-scroll":74,"angular-ui-router":78}],92:[function(require,module,exports){
+},{"./blog":94,"./components":96,"./config/app.config":98,"./config/app.constants":99,"./config/app.run":100,"./config/app.templates":101,"./dashboard":104,"./editor":107,"./filters":108,"./home":111,"./layout":114,"./login":115,"./services":120,"angular":90,"angular-scroll":74,"angular-ui-router":78}],92:[function(require,module,exports){
+'use strict';
+
+BlogConfig.$inject = ["$stateProvider"];
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function BlogConfig($stateProvider) {
+    'ngInject';
+
+    $stateProvider.state('app.blog', {
+        url: '/blog',
+        controller: 'BlogCtrl',
+        controllerAs: '$ctrl',
+        templateUrl: 'blog/blog.html',
+        title: 'Blog'
+    });
+};
+
+exports.default = BlogConfig;
+
+},{}],93:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var BlogCtrl = function () {
+  BlogCtrl.$inject = ["AppConstants", "Blog"];
+  function BlogCtrl(AppConstants, Blog) {
+    'ngInject';
+
+    _classCallCheck(this, BlogCtrl);
+
+    this._AppConstants = AppConstants;
+    this._Blog = Blog;
+    this.blogs = [];
+  }
+
+  _createClass(BlogCtrl, [{
+    key: '$onInit',
+    value: function $onInit() {
+      var _this = this;
+
+      this._Blog.get().then(function (result) {
+        _this.blogs = result;
+      });
+    }
+  }]);
+
+  return BlogCtrl;
+}();
+
+exports.default = BlogCtrl;
+
+},{}],94:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _angular = require('angular');
+
+var _angular2 = _interopRequireDefault(_angular);
+
+var _blog = require('./blog.config');
+
+var _blog2 = _interopRequireDefault(_blog);
+
+var _blog3 = require('./blog.controller');
+
+var _blog4 = _interopRequireDefault(_blog3);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var blogModule = _angular2.default.module('app.blog', []);
+
+blogModule.config(_blog2.default);
+
+blogModule.controller('BlogCtrl', _blog4.default);
+
+exports.default = blogModule;
+
+},{"./blog.config":92,"./blog.controller":93,"angular":90}],95:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45548,7 +45639,7 @@ var FilmList = {
 
 exports.default = FilmList;
 
-},{}],93:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45577,7 +45668,7 @@ componentsModule.component('filmList', _filmlist2.default);
 
 exports.default = componentsModule;
 
-},{"./filmlist.component":92,"./weblist.component":94,"angular":90}],94:[function(require,module,exports){
+},{"./filmlist.component":95,"./weblist.component":97,"angular":90}],97:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45621,7 +45712,7 @@ var WebList = {
 
 exports.default = WebList;
 
-},{}],95:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 'use strict';
 
 AppConfig.$inject = ["$httpProvider", "$stateProvider", "$locationProvider", "$urlRouterProvider"];
@@ -45646,7 +45737,7 @@ function AppConfig($httpProvider, $stateProvider, $locationProvider, $urlRouterP
 
 exports.default = AppConfig;
 
-},{}],96:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 (function (__dirname){
 'use strict';
 
@@ -45662,7 +45753,7 @@ var AppConstants = {
 exports.default = AppConstants;
 
 }).call(this,"/public\\javascripts\\config")
-},{}],97:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 'use strict';
 
 AppRun.$inject = ["AppConstants", "$rootScope"];
@@ -45691,22 +45782,23 @@ function AppRun(AppConstants, $rootScope) {
 
 exports.default = AppRun;
 
-},{}],98:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 'use strict';
 
 angular.module('templates', []).run(['$templateCache', function ($templateCache) {
   $templateCache.put('components/film-list.html', '<div id=\'film\' class=\'container-fluid project-container\'>\r\n\t<div class=\'row\' ng-repeat="film in $ctrl.films">\r\n\t\t<div class=\'col-12 col-md-6 pt-3 filmProjectBox\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<h2 class=\'sr-only\'>Film Projects</h2>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t<img class=\'web-bullet img-fluid\' src="https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,q_100,w_150/v1515783507/001-ticket_n6dh11.svg">\r\n\t\t\t\t</div><!--End of col-sm-3-->\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<h3 class=\'h2 d-block d-sm-none pt-1\'>{{film.title}}</h3>\r\n\t\t\t\t\t<p class=\'display-3 d-none d-sm-block d-md-none\'>{{film.title}}</p>\r\n\t\t\t\t\t<p class=\'h1 d-none d-md-block d-lg-none pt-2\'>{{film.title}}</p>\r\n\t\t\t\t\t<p class=\'display-4 d-none d-lg-block pt-3\'>{{film.title}}</p>\r\n\t\t\t\t</div><!--End of col-sm-9-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<img class=\'cal-glyph\' src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515720530/match_pk0wfk.svg">\r\n\t\t\t\t\t<span class=\'d-inline-block d-xl-none\'>{{film.publishDate|date:\'MMM\'}} \'{{film.publishDate|date:"yy"}}</span>\r\n\t\t\t\t\t<span class=\'h1 d-none d-xl-inline-block\'>{{film.publishDate|date:\'MMM\'}} \'{{film.publishDate|date:"yy"}}</span>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<div class=\'col-12 text-center\'>\r\n\t\t\t\t\t<p class=\'d-xl-none\'>{{film.description}}</p>\r\n\t\t\t\t\t<p class=\'h2 d-none d-xl-block\'>{{film.description}}</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\'col-12 col-md-6 pb-3 screen-bg\'>\r\n\t\t\t<p class=\'sr-only\'>Screen Box</p>\r\n\t\t\t<div class="embed-responsive embed-responsive-16by9 mt-5">\r\n\t\t\t  <iframe class="embed-responsive-item" ng-src="{{film.linkToVideo | trusted}}" allowfullscreen></iframe>\r\n\t\t\t</div>\r\n\t\t</div><!--marigoldBox-->\r\n\t</div>\r\n</div>');
   $templateCache.put('components/web-list.html', '<div id=\'web\' class=\'container-fluid project-container\'>\r\n\t<div class=\'row\' ng-repeat="website in $ctrl.websites">\r\n\t\t<div class=\'col-12 col-md-6 d-none d-md-block marigold-bg\'>\r\n\t\t\t<p class=\'sr-only\'>Marigold Box</p>\r\n\t\t</div><!--marigoldBox-->\r\n\t\t<div class=\'col-12 col-md-6 pt-3 webProjectBox\'>\r\n\t\t\t<h2 class=\'sr-only\'>Web Projects</h2>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t<img class=\'web-bullet img-fluid\' src="https://res.cloudinary.com/relentlessrawle/image/upload/c_scale,q_100,w_150/v1515711777/pennant_z0xwyy.svg">\r\n\t\t\t\t</div><!--End of col-sm-3-->\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<h3 class=\'h1 d-block d-sm-none\'>{{website.title}}</h3>\r\n\t\t\t\t\t<p class=\'display-2 d-none d-sm-block d-md-none\'>{{website.title}}</p>\r\n\t\t\t\t\t<p class=\'display-4 d-none d-md-block d-lg-none\'>{{website.title}}</p>\r\n\t\t\t\t\t<p class=\'display-2 d-none d-lg-block\'>{{website.title}}</p>\r\n\t\t\t\t</div><!--End of col-sm-9-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t<img class=\'cal-glyph\' src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515720530/match_pk0wfk.svg">\r\n\t\t\t\t\t<span class=\'d-inline-block d-xl-none\'>{{website.startDate|date: "MMM"}} \'{{website.startDate|date:"yy"}} - {{website.endDate|date:"MMM"}} \'{{website.endDate|date:"yy"}}</span>\r\n\t\t\t\t\t<span class=\'h1 d-none d-xl-inline-block\'>{{website.startDate|date:"MMM"}} \'{{website.startDate|date:"yy"}} - {{website.endDate|date:"MMM"}} \'{{website.endDate|date:"yy"}}</span>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<div class=\'col-12 text-center\'>\r\n\t\t\t\t\t<p class=\'d-xl-none\'>{{website.description}}</p>\r\n\t\t\t\t\t<p class=\'h2 d-none d-xl-block\'>{{website.description}}</p>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-2\'>\r\n\t\t\t\t<div class=\'col-12 col-md-6 text-center\'>\r\n\t\t\t\t\t<a href="{{website.linkToWeb}}"><u class=\'view-link\'><span class=\'h4\'><i class=\'fa fa-eye\' aria-hidden="true"></i> View on the Web</span></u></a>\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-md-6 text-center\'>\r\n\t\t\t\t\t<a href="{{website.linkToGithub}}"><u class=\'view-link\'><span class=\'h4\'><i class=\'fa fa-github\' aria-hidden="true"></i> View on Github</span></u></a>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t\t<div class=\'row pt-3\'>\r\n\t\t\t\t<ul class="nav nav-pills">\r\n\t\t\t\t  <li class="nav-item m-1 animated technologies" ng-repeat="item in website.listOfTechnologies track by $index">\r\n\t\t\t\t    <a class="nav-link btn btn-sm btn-warning disabled" href="#">{{website.listOfTechnologies[$index]}}</a>\r\n\t\t\t\t  </li>\r\n\t\t\t\t</ul>\r\n\t\t\t</div>\r\n\t\t</div><!--Web Project Container-->\r\n\t</div><!--End of row-->\r\n</div><!--End of container-->');
-  $templateCache.put('dashboard/dashboard.html', '<div class=\'container-fluid steel-bg\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t<h2 class=\'marigold\'>Web Projects</h2>\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'  ng-repeat="website in $ctrl.websites">\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>{{website.title}}</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close" ng-click="$ctrl.deleteProject(\'web\', website._id)">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" ng-src="{{website.linkImage}}" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>{{website.description}}</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right" ui-sref="app.editor({type:\'website\', slug: website._id})">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div><!--End of col-xl-4-->\t\t\t\t  \r\n\t\t\t</div>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t<h2 class=\'marigold\'>Film Projects</h2>\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\' ng-repeat="film in $ctrl.films">\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>{{film.title}}</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close" ng-click="$ctrl.deleteProject(\'film\', film._id)">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" ng-src="{{film.linkImage}}">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>{{film.description}}</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" ui-sref="app.editor({type:\'film\', slug: film._id})" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\'col-12 col-xl-7\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 col-xl-9\'>\r\n\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t\t\t<h2 class=\'marigold\'>Blogs</h2>\r\n\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'>\r\n\t\t\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<p class=\'h5\'>Card Title</p>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close">\r\n\t\t\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'card-text\'>Dec 17,2018</p>\r\n\t\t\t\t\t\t\t\t\t<p class=\'card-text\'>A small description of the website that I will be editing</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="btn btn-link"><i class=\'fa fa-comments\' aria-hidden="true"></i></button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t\t\t</div>\r\n\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-3\'>\r\n\t\t\t\t\t<div class=\'btn-group\' role="group" aria-label="Button group with nested dropdown">\r\n\t\t\t\t\t\t<div class="btn-group" role="group">\r\n\t\t\t\t\t\t\t<div class="dropdown mt-5">\r\n\t\t\t\t\t\t\t  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\r\n\t\t\t\t\t\t\t    Add...\r\n\t\t\t\t\t\t\t  </button>\r\n\t\t\t\t\t\t\t  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">\r\n\t\t\t\t\t\t\t    <button ui-sref="app.editor({type:\'website\'})" class="dropdown-item denim-btn" type="button">New Web Project</button>\r\n\t\t\t\t\t\t\t    <button ui-sref="app.editor({type:\'film\'})" class="dropdown-item denim-btn" type="button">New Film Project</button>\r\n\t\t\t\t\t\t\t    <button ui-sref="app.editor({type:\'film\'})" class="dropdown-item denim-btn" type="button">New Blog Post</button>\r\n\t\t\t\t\t\t\t  </div>\r\n\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t</div>\t\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t<div class=\'mt-5\'>\r\n\t\t\t\t\t\t\t<button class=\'btn btn-danger\' ng-click="$ctrl.logout()">Logout</button>\r\n\t\t\t\t\t\t</div>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t</div><!--End of row-->\r\n</div><!--End of container-->');
-  $templateCache.put('editor/editor.html', '<div class=\'container-fluid steel-bg p-5 editor-container\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 p-3\'>\r\n\t\t\t<button class=\'btn btn-lg screen-bg denim-btn pull-right\' ng-click="$ctrl.back()">Back</button>\r\n\t\t</div><!--End of col-12-->\r\n\t</div><!--End of row-->\r\n\t<form ng-submit="$ctrl.submitForm()" ng-show="$ctrl.type == \'website\'">\r\n\t\t<fieldset class=\'screen-bg p-5\' ng-disabled=\'$ctrl.isSubmitting\'>\r\n\t\t\t<div class=\'row p-3\'>\r\n\t\t\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectTitle\'>Title</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="text" id=\'projectTitle\' ng-model=\'$ctrl.project.title\'>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectDescription\'>Description</label>\r\n\t\t\t\t\t\t<textarea class=\'form-control\' type="text" id=\'projectDescription\' ng-model=\'$ctrl.project.description\' rows=\'6\'></textarea>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'sr-only\'>Technologies</label>\r\n\t\t\t\t\t\t<ul class=\'nav nav-pills\'>\r\n\t\t\t\t\t\t\t<li class=\'nav-item m-1 btn btn-warning\' ng-repeat="item in $ctrl.project.listOfTechnologies">{{item}} <i class="fa fa-times-circle-o" aria-hidden="true" ng-click=\'$ctrl.removeTag(item)\'></i></li>\r\n\t\t\t\t\t\t</ul>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t</div><!--End of col-xl-5-->\r\n\t\t\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkImage\'>Link to Image</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkImage\' ng-model=\'$ctrl.project.linkImage\'>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkToWeb\'>Link to Website</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkToWeb\' ng-model=\'$ctrl.project.linkToWeb\'>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkToGithub\'>Link to Github</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkToGithub\' ng-model=\'$ctrl.project.linkToGithub\'>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'listOfTechnologies\'>Technology Input</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'listOfTechnologies\' ng-model="$ctrl.tagField" ng-keyup="$event.keyCode == 186 && $ctrl.addTag()" placeholder="add new technologies here">\r\n\t\t\t\t\t</div>\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-2\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'startDate\'> Start Date</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="date" id=\'startDate\' ng-model="$ctrl.project.startDate">\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'endDate\'> End Date</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="date" id=\'endDate\' ng-model="$ctrl.project.endDate">\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t</div><!--End of col-xl-2-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12\'>\r\n\t\t\t\t\t<button class=\'mr-5 btn btn-lg float-right bg-screen denim-btn\' ng-click=\'$ctrl.submit()\'>Save</button>\r\n\t\t\t\t</div><!--End of col-12-->\r\n\t\t\t</div><!--End of row-->\t\r\n\t\t</fieldset>\r\n\t</form>\r\n\r\n\t<form ng-submit=\'$ctrl.submitForm()\' ng-show="$ctrl.type == \'film\'">\r\n\t\t<fieldset class=\'screen-bg p-5\' ng-disabled=\'$ctrl.isSubmitting\'>\r\n\t\t\t<div class=\'row p-3\'>\r\n\t\t\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectTitle\'>Title</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="text" id=\'projectTitle\' ng-model=\'$ctrl.project.title\'>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectDescription\'>Description</label>\r\n\t\t\t\t\t\t<textarea class=\'form-control\' type="text" id=\'projectDescription\' ng-model=\'$ctrl.project.description\' rows=\'6\'></textarea>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t</div><!--End of col-xl-5-->\r\n\t\t\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkImage\'>Link to Image</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkImage\' ng-model=\'$ctrl.project.linkImage\'>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkToVideo\'>Link to Video</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkToVideo\' ng-model=\'$ctrl.project.linkToVideo\'>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t</div><!--End of col-xl-5-->\r\n\t\t\t\t<div class=\'col-12 col-xl-2\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'publishDate\'>Publish Date</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="date" id=\'publishDate\' ng-model=\'$ctrl.project.publishDate\'>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t</div><!--End of col-xl-2-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12\'>\r\n\t\t\t\t\t<button class=\'mr-5 btn btn-lg float-right bg-screen denim-btn\' ng-click=\'$ctrl.submit()\'>Save</button>\r\n\t\t\t\t</div><!--End of col-12-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t</fieldset>\r\n\t</form>\r\n</div><!--End of steel-bg-->');
-  $templateCache.put('home/home.html', '<div class="jumbotron jumbotron-fluid">\r\n  <div class="container">\r\n\r\n  </div>\r\n</div>\r\n\r\n<div class=\'container-fluid\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 col-md-11 offset-md-1 col-xl-10 offset-xl-2\'>\r\n\t\t\t<p class=\'display-1 text-center text-sm-left animated fadeInLeft delay\'>Rawle Juglal</p>\r\n\t\t</div>\r\n\t\t<div class=\'col-12 col-xl-10 offset-xl-1\'>\r\n\t\t\t<p class=\'display-4 text-center text-sm-left animated fadeInRight delay\'>"It\'s hard to beat someone who never quits"</p>\r\n\t\t</div>\r\n\t</div>\r\n\t\r\n</div>\r\n\r\n<web-list ></web-list>\r\n<film-list></film-list>');
+  $templateCache.put('blog/blog.html', '\r\n<div class=\'d-none d-md-block vid-container\'>\r\n\t<video id=\'blog-vid\' ng-src=\'https://res.cloudinary.com/relentlessrawle/video/upload/v1516732424/Blog_Vid_hmwlrx.mp4\' autoplay loop muted></video>\r\n</div>\r\n<div class=\'d-md-none\'>\r\n\t<img class=\'img-fluid\' ng-src=\'https://res.cloudinary.com/relentlessrawle/image/upload/v1516741513/PhoenixVid_jwmo2v.jpg\'>\r\n</div>\r\n<div class=\'container-fluid screen-bg\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 text-center\'>\r\n\t\t\t<h2 class=\'d-md-none marigold\'>Rawle\'s Coaching Journey</h2>\r\n\t\t\t<h2 class=\'display-1 d-none d-md-block marigold\'>Rawle\'s Coaching Journey</h2>\r\n\t\t</div><!--End of col-12-->\r\n\t</div><!--End of row-->\r\n\t<div class=\'row pb-3\' ng-repeat=\'blog in $ctrl.blogs track by $index\'>\r\n\t\t<div class=\'col-12\'>\r\n\t\t\t<div class=\'card\'>\r\n\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t<div class=\'col-3 col-md-2\'>\r\n\t\t\t\t\t\t\t<img class=\'img-fluid\' ng-src=\'https://res.cloudinary.com/relentlessrawle/image/upload/v1516747302/whistle_yhdell.svg\'>\r\n\t\t\t\t\t\t</div><!--End of col-md-2-->\r\n\t\t\t\t\t\t<div class=\'col-9 col-md-7\'>\r\n\t\t\t\t\t\t\t<h3 class=\'d-sm-none denim\'>{{blog.title}}</h3>\r\n\t\t\t\t\t\t\t<h3 class=\'h1 pt-3 d-none d-sm-block d-md-none denim\'>{{blog.title}}</h3>\r\n\t\t\t\t\t\t\t<h3 class=\'display-4 pt-3 d-none d-md-block d-xl-none denim\'>{{blog.title}}</h3>\r\n\t\t\t\t\t\t\t<h3 class=\'display-1 pt-3 d-none d-xl-block denim\'>{{blog.title}}</h3>\r\n\t\t\t\t\t\t</div><!--End of col-md-7-->\r\n\t\t\t\t\t\t<div class=\'col-12 col-md-3\'>\r\n\t\t\t\t\t\t\t<p class=\'d-sm-none denim\'>{{blog.publishDate | date:\'mediumDate\'}}</p>\r\n\t\t\t\t\t\t\t<p class=\'h4 d-none d-sm-block d-md-none denim\'>{{blog.publishDate | date:\'mediumDate\'}}</p>\r\n\t\t\t\t\t\t\t<p class=\'h4 d-none d-md-block d-lg-none pt-5 denim\'>{{blog.publishDate | date:\'mediumDate\'}}</p>\r\n\t\t\t\t\t\t\t<p class=\'h4 d-none d-lg-block d-xl-none pt-4 denim\'>{{blog.publishDate | date:\'mediumDate\'}}</p>\r\n\t\t\t\t\t\t\t<p class=\'h2 d-none d-xl-block pt-5 denim\'>{{blog.publishDate | date:\'mediumDate\'}}</p>\r\n\t\t\t\t\t\t</div><!--End of col-md-3-->\r\n\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t<p class=\'card-text denim d-sm-none\'>{{blog.body}}</p>\r\n\t\t\t\t\t<p class=\'card-text h3 denim d-none d-sm-block d-md-none\'>{{blog.body}}</p>\r\n\t\t\t\t\t<p class=\'card-text h1 denim d-none d-md-block\'>{{blog.body}}</p>\r\n\t\t\t\t</div><!--End of card body-->\r\n\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t<div class=\'col-12\'>\r\n\t\t\t\t\t\t\t<a class=\'float-right view-link\' data-toggle=\'collapse\' href="#commentDiv{{$index}}" role="button" aria-expanded="false" aria-controls="commentDiv{{index}}"><u><span class=\'h4\'><i class="fa fa-comments" aria-hidden="true"></i> View Comments</span></u></a>\r\n\t\t\t\t\t\t</div><!--End of col-12-->\r\n\t\t\t\t\t\t<div class=\'col-12\'>\r\n\t\t\t\t\t\t\t<div class="collapse" id="commentDiv{{$index}}">\r\n\t\t\t\t\t\t\t  <div class="card card-body" ng-repeat=\'comment in blog.comments\'>\r\n\t\t\t\t\t\t\t    Some text\r\n\t\t\t\t\t\t\t    <p>{{comment.username}}</p>\r\n\t\t\t\t\t\t\t  </div><!--End of card-body-->\r\n\t\t\t\t\t\t\t</div><!--End of commentDiv-->\r\n\t\t\t\t\t\t</div><!--End of col-12-->\r\n\t\t\t\t\t</div><!--End of row-->\t\t\t\r\n\t\t\t\t</div><!--End of card footer-->\r\n\t\t\t</div><!--End of card-->\r\n\t\t</div><!--End of col-12-->\r\n\t</div><!--End of row-->\r\n</div><!--End of container-fluid-->\r\n');
+  $templateCache.put('dashboard/dashboard.html', '<div class=\'container-fluid steel-bg\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t<h2 class=\'marigold\'>Web Projects</h2>\t\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\'  ng-repeat="website in $ctrl.websites">\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>{{website.title}}</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close" ng-click="$ctrl.deleteProject(\'web\', website._id)">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" ng-src="{{website.linkImage}}" alt="Card image cap">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>{{website.description}}</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" class="btn btn-dark btn-sm float-right" ui-sref="app.editor({type:\'website\', slug: website._id})">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div><!--End of col-xl-4-->\t\t\t\t  \r\n\t\t\t</div>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t<h2 class=\'marigold\'>Film Projects</h2>\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\' ng-repeat="film in $ctrl.films">\r\n\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'h5\'>{{film.title}}</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close" ng-click="$ctrl.deleteProject(\'film\', film._id)">\r\n\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t<img class="card-img-top" ng-src="{{film.linkImage}}">\r\n\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t<p class=\'card-text\'>{{film.description}}</p>\r\n\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t<button type="button" ui-sref="app.editor({type:\'film\', slug: film._id})" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t\t<div class=\'col-12 col-xl-7\'>\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12 col-xl-9\'>\r\n\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t<div class=\'col-12 p-1\'>\r\n\t\t\t\t\t\t\t<h2 class=\'marigold\'>Blogs</h2>\r\n\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t<div class=\'col-12 col-xl-4 pb-2\' ng-repeat="blog in $ctrl.blogs">\r\n\t\t\t\t\t\t\t<div class=\'card\'>\r\n\t\t\t\t\t\t\t\t<div class=\'card-header\'>\r\n\t\t\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<p class=\'h5\'>{{blog.title}}</p>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="close" aria-label="Close" ng-click="$ctrl.deleteProject(\'blog\', blog._id)">\r\n\t\t\t\t\t\t\t\t\t\t\t  <span aria-hidden="true">&times;</span>\r\n\t\t\t\t\t\t\t\t\t\t\t</button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t\t\t</div><!--End of card-header-->\r\n\t\t\t\t\t\t\t\t<div class=\'card-body\'>\r\n\t\t\t\t\t\t\t\t\t<p class=\'card-text\'>{{blog.publishDate | date:\'mediumDate\'}}</p>\r\n\t\t\t\t\t\t\t\t\t<p class=\'card-text\'>{{blog.body | limitTo: 144:0}}</p>\r\n\t\t\t\t\t\t\t\t</div><!--End of card-body-->\r\n\t\t\t\t\t\t\t\t<div class=\'card-footer\'>\r\n\t\t\t\t\t\t\t\t\t<div class=\'row\'>\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-9\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" class="btn btn-link"><i class=\'fa fa-comments\' aria-hidden="true"></i></button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-9-->\r\n\t\t\t\t\t\t\t\t\t\t<div class=\'col-3\'>\r\n\t\t\t\t\t\t\t\t\t\t\t<button type="button" ui-sref="app.editor({type:\'blog\', slug: blog._id})" class="btn btn-dark btn-sm float-right">Edit</button>\r\n\t\t\t\t\t\t\t\t\t\t</div><!--End of col-3-->\r\n\t\t\t\t\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t\t\t\t\t</div><!--End of card-footer-->\r\n\t\t\t\t\t\t\t</div><!--End of card-->\r\n\t\t\t\t\t\t</div>\r\n\t\t\t\t\t</div><!--End of row-->\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-3\'>\r\n\t\t\t\t\t<div class=\'btn-group\' role="group" aria-label="Button group with nested dropdown">\r\n\t\t\t\t\t\t<div class="btn-group" role="group">\r\n\t\t\t\t\t\t\t<div class="dropdown mt-5">\r\n\t\t\t\t\t\t\t  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\r\n\t\t\t\t\t\t\t    Add...\r\n\t\t\t\t\t\t\t  </button>\r\n\t\t\t\t\t\t\t  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">\r\n\t\t\t\t\t\t\t    <button ui-sref="app.editor({type:\'website\'})" class="dropdown-item denim-btn" type="button">New Web Project</button>\r\n\t\t\t\t\t\t\t    <button ui-sref="app.editor({type:\'film\'})" class="dropdown-item denim-btn" type="button">New Film Project</button>\r\n\t\t\t\t\t\t\t    <button ui-sref="app.editor({type:\'blog\'})" class="dropdown-item denim-btn" type="button">New Blog Post</button>\r\n\t\t\t\t\t\t\t  </div>\r\n\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t</div>\t\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t<div class=\'mt-5\'>\r\n\t\t\t\t\t\t\t<button class=\'btn btn-danger\' ng-click="$ctrl.logout()">Logout</button>\r\n\t\t\t\t\t\t</div>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</div>\r\n\t</div><!--End of row-->\r\n</div><!--End of container-->');
+  $templateCache.put('editor/editor.html', '<div class=\'container-fluid steel-bg p-5 editor-container\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 p-3\'>\r\n\t\t\t<button class=\'btn btn-lg screen-bg denim-btn pull-right\' ng-click="$ctrl.back()">Back</button>\r\n\t\t</div><!--End of col-12-->\r\n\t</div><!--End of row-->\r\n\t<form ng-submit="$ctrl.submitForm()" ng-show="$ctrl.type == \'website\'">\r\n\t\t<fieldset class=\'screen-bg p-5\' ng-disabled=\'$ctrl.isSubmitting\'>\r\n\t\t\t<div class=\'row p-3\'>\r\n\t\t\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectTitle\'>Title</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="text" id=\'projectTitle\' ng-model=\'$ctrl.project.title\'>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectDescription\'>Description</label>\r\n\t\t\t\t\t\t<textarea class=\'form-control\' type="text" id=\'projectDescription\' ng-model=\'$ctrl.project.description\' rows=\'6\'></textarea>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'sr-only\'>Technologies</label>\r\n\t\t\t\t\t\t<ul class=\'nav nav-pills\'>\r\n\t\t\t\t\t\t\t<li class=\'nav-item m-1 btn btn-warning\' ng-repeat="item in $ctrl.project.listOfTechnologies">{{item}} <i class="fa fa-times-circle-o" aria-hidden="true" ng-click=\'$ctrl.removeTag(item)\'></i></li>\r\n\t\t\t\t\t\t</ul>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t</div><!--End of col-xl-5-->\r\n\t\t\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkImage\'>Link to Image</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkImage\' ng-model=\'$ctrl.project.linkImage\'>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkToWeb\'>Link to Website</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkToWeb\' ng-model=\'$ctrl.project.linkToWeb\'>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkToGithub\'>Link to Github</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkToGithub\' ng-model=\'$ctrl.project.linkToGithub\'>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'listOfTechnologies\'>Technology Input</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'listOfTechnologies\' ng-model="$ctrl.tagField" ng-keyup="$event.keyCode == 186 && $ctrl.addTag()" placeholder="add new technologies here">\r\n\t\t\t\t\t</div>\r\n\t\t\t\t</div>\r\n\t\t\t\t<div class=\'col-12 col-xl-2\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'startDate\'> Start Date</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="date" id=\'startDate\' ng-model="$ctrl.project.startDate">\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'endDate\'> End Date</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="date" id=\'endDate\' ng-model="$ctrl.project.endDate">\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t</div><!--End of col-xl-2-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12\'>\r\n\t\t\t\t\t<button class=\'mr-5 btn btn-lg float-right bg-screen denim-btn\' ng-click=\'$ctrl.submit()\'>Save</button>\r\n\t\t\t\t</div><!--End of col-12-->\r\n\t\t\t</div><!--End of row-->\t\r\n\t\t</fieldset>\r\n\t</form>\r\n\r\n\t<form ng-submit=\'$ctrl.submitForm()\' ng-show="$ctrl.type == \'film\'">\r\n\t\t<fieldset class=\'screen-bg p-5\' ng-disabled=\'$ctrl.isSubmitting\'>\r\n\t\t\t<div class=\'row p-3\'>\r\n\t\t\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectTitle\'>Title</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="text" id=\'projectTitle\' ng-model=\'$ctrl.project.title\'>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectDescription\'>Description</label>\r\n\t\t\t\t\t\t<textarea class=\'form-control\' type="text" id=\'projectDescription\' ng-model=\'$ctrl.project.description\' rows=\'6\'></textarea>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t</div><!--End of col-xl-5-->\r\n\t\t\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkImage\'>Link to Image</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkImage\' ng-model=\'$ctrl.project.linkImage\'>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'linkToVideo\'>Link to Video</label>\r\n\t\t\t\t\t\t<input  class=\'form-control\'  type="text" id=\'linkToVideo\' ng-model=\'$ctrl.project.linkToVideo\'>\r\n\t\t\t\t\t</div>\r\n\t\t\t\t</div><!--End of col-xl-5-->\r\n\t\t\t\t<div class=\'col-12 col-xl-2\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'publishDate\'>Publish Date</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="date" id=\'publishDate\' ng-model=\'$ctrl.project.publishDate\'>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t</div><!--End of col-xl-2-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12\'>\r\n\t\t\t\t\t<button class=\'mr-5 btn btn-lg float-right bg-screen denim-btn\' ng-click=\'$ctrl.submit()\'>Save</button>\r\n\t\t\t\t</div><!--End of col-12-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t</fieldset>\r\n\t</form>\r\n\r\n\t<form ng-submit=\'$ctrl.submitForm()\' ng-show="$ctrl.type == \'blog\'">\r\n\t\t<fieldset class=\'screen-bg p-5\' ng-disabled=\'$ctrl.isSubmitting\'>\r\n\t\t\t<div class=\'row p-3\'>\r\n\t\t\t\t<div class=\'col-12 col-xl-5\'>\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectTitle\'>Title</label>\r\n\t\t\t\t\t\t<input class=\'form-control\' type="text" id=\'projectTitle\' ng-model=\'$ctrl.project.title\'>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t\t<div class=\'form-group\'>\r\n\t\t\t\t\t\t<label class=\'denim h3\' for=\'projectDescription\'>Description</label>\r\n\t\t\t\t\t\t<textarea class=\'form-control\' type="text" id=\'projectDescription\' ng-model=\'$ctrl.project.body\' rows=\'6\'></textarea>\r\n\t\t\t\t\t</div><!--End of form-group-->\r\n\t\t\t\t</div><!--End of col-xl-5-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t\t<div class=\'row\'>\r\n\t\t\t\t<div class=\'col-12\'>\r\n\t\t\t\t\t<button class=\'mr-5 btn btn-lg float-right bg-screen denim-btn\' ng-click=\'$ctrl.submit()\'>Save</button>\r\n\t\t\t\t</div><!--End of col-12-->\r\n\t\t\t</div><!--End of row-->\r\n\t\t</fieldset>\r\n\t</form>\r\n</div><!--End of steel-bg-->');
+  $templateCache.put('home/home.html', '<div class="jumbotron jumbotron-fluid jumbotron-home">\r\n  <div class="container">\r\n\r\n  </div>\r\n</div>\r\n\r\n<div class=\'container-fluid\'>\r\n\t<div class=\'row\'>\r\n\t\t<div class=\'col-12 col-md-11 offset-md-1 col-xl-10 offset-xl-2\'>\r\n\t\t\t<p class=\'display-1 text-center text-sm-left animated fadeInLeft delay\'>Rawle Juglal</p>\r\n\t\t</div>\r\n\t\t<div class=\'col-12 col-xl-10 offset-xl-1\'>\r\n\t\t\t<p class=\'display-4 text-center text-sm-left animated fadeInRight delay\'>"It\'s hard to beat someone who never quits"</p>\r\n\t\t</div>\r\n\t</div>\r\n\t\r\n</div>\r\n\r\n<web-list ></web-list>\r\n<film-list></film-list>');
   $templateCache.put('layout/app-view.html', '<app-header></app-header>\r\n\r\n<div class=\'content\' ui-view></div>\r\n\r\n<app-footer></app-footer>');
   $templateCache.put('layout/footer.html', '<footer>\r\n    <div class="container-fluid denim-bg">\r\n        <ul class="list-unstyled pt-3">\r\n            <li><a class=\'text-white f6\' ui-sref="app.login"><h2 class=\'d-none\'>Login</h2>LOGIN</a></li>\r\n        </ul>\r\n        \r\n        <div class="row text-white f6">\r\n            <div class="col-sm-6 ml-1">\r\n            </div><!-- col-sm-6-->\r\n            <div class="col-sm-5">\r\n                <span class=\'float-right\'>\r\n                    Developed By: <a class=\'text-white f6\' href="http://www.rawlejuglal.me">rawlejuglal.me</a>.\r\n                </span>\r\n            </div>\r\n        </div><!--End of row -->\r\n        \r\n    </div>\r\n</footer>');
-  $templateCache.put('layout/header.html', '<nav class="navbar fixed-top navbar-expand-md navbar-dark denim-bg">\r\n  <a class="navbar-brand" href="#">\r\n    <img src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515711657/Logo_e1thd9.png" width="30" height="30" alt="">\r\n  </a>\r\n  </a>\r\n  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">\r\n    <span class="navbar-toggler-icon"></span>\r\n  </button>\r\n\r\n  <div class="collapse navbar-collapse" id="navbarSupportedContent">\r\n    <ul class=\'navbar-nav ml-auto\'>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="#web" du-smooth-scroll>Web Projects</a></li>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="#film" du-smooth-scroll>Film Projects</a></li>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="">Blog</a></li>\r\n    </ul>\r\n  </div>\r\n</nav>');
+  $templateCache.put('layout/header.html', '<nav class="navbar fixed-top navbar-expand-md navbar-dark denim-bg">\r\n  <a class="navbar-brand" href="#">\r\n    <img src="https://res.cloudinary.com/relentlessrawle/image/upload/q_100/v1515711657/Logo_e1thd9.png" width="30" height="30" alt="">\r\n  </a>\r\n  </a>\r\n  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">\r\n    <span class="navbar-toggler-icon"></span>\r\n  </button>\r\n\r\n  <div class="collapse navbar-collapse" id="navbarSupportedContent">\r\n    <ul class=\'navbar-nav ml-auto\'>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="#web" du-smooth-scroll>Web Projects</a></li>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' href="#film" du-smooth-scroll>Film Projects</a></li>\r\n      <li class=\'nav-item h5\'><a  class=\'nav-link mt-md-3 screen\' ui-sref=\'app.blog\'>Blog</a></li>\r\n    </ul>\r\n  </div>\r\n</nav>');
   $templateCache.put('login/login.html', '<div class=\'container-fluid login-container mt-5\'>\r\n\t<div class=\'row mt-5\'>\r\n\t\t<div class=\'col-12 col-sm-6 offset-sm-3 col-md-4 offset-md-4 mt-5 mb-5\'>\r\n\t\t\t<form class=\'steel-bg mt-5 pt-3 pl-2 pr-2 pb-2 rounded-bottom animated bounceInLeft\' ng-submit="$ctrl.submitForm()">\r\n\t\t\t\t<fieldset class=\'text-center\'>\r\n\t\t\t\t\t<p class=\'h1 marigold\'>LOGIN</p>\r\n\t\t\t\t\t<p class=\'marigold\'>If you\'re not an admin you are in the wrong place</p>\r\n\t\t\t\t</fieldset>\r\n\t\t\t\t<fieldset class=\'screen-bg p-2\'>\r\n\t\t\t\t\t<fieldset ng-disabled="$ctrl.isSubmitting">\r\n\t\t\t\t  \t\t<fieldset class=\'form-group\'>\r\n\t\t\t\t  \t\t\t<div class="input-group input-group-lg mb-3">\r\n\t\t\t\t\t\t\t  <input type="text" class="form-control form-control-lg denim" placeholder="Username" \r\n\t\t\t\t\t\t\t  ng-model="$ctrl.formData.username" required\r\n\t\t\t\t\t\t\t  aria-label="username" aria-describedby="person-icon">\r\n\t\t\t\t\t\t\t  <div class="input-group-append">\r\n\t\t\t\t\t\t\t    <span class="input-group-text" id="person-icon"><i class=\'fa fa-user\' aria-hidden="true"></i></span>\r\n\t\t\t\t\t\t\t  </div>\r\n\t\t\t\t\t\t\t</div>\r\n\t\t\t\t  \t\t</fieldset>\r\n\t                    <fieldset class=\'form-group\'>\r\n\t\t\t\t  \t\t\t<div class="input-group input-group-lg mb-3">\r\n\t\t\t\t\t\t\t  <input type="text" class="form-control form-control-lg denim" placeholder="Password" \r\n\t\t\t\t\t\t\t  ng-model="$ctrl.formData.password" required\r\n\t\t\t\t\t\t\t  aria-label="password" aria-describedby="lock-icon">\r\n\t\t\t\t\t\t\t  <div class="input-group-append">\r\n\t\t\t\t\t\t\t    <span class="input-group-text" id="lock-icon"><i class=\'fa fa-lock\' aria-hidden="true"></i></span>\r\n\t\t\t\t\t\t\t  </div>\r\n\t\t\t\t\t\t\t</div>\r\n\t\t\t\t  \t\t</fieldset>\r\n\t                        <!-- button will use auth.controller.js var stored in title\r\n\t                         which it receives from auth.config.js -->\r\n\t                        <button class="btn btn-sm btn-light float-right" type="submit" ng-bind="$ctrl.title">\r\n\t                        </button>\r\n\t\t\t\t  </fieldset>\r\n\t\t\t\t</fieldset>\t\r\n\t\t\t</form>\r\n\t\t</div>\r\n\t</div>\r\n</div>');
 }]);
 
-},{}],99:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 'use strict';
 
 DashboardConfig.$inject = ["$stateProvider"];
@@ -45727,7 +45819,7 @@ function DashboardConfig($stateProvider) {
 
 exports.default = DashboardConfig;
 
-},{}],100:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45739,8 +45831,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var DashboardCtrl = function () {
-    DashboardCtrl.$inject = ["AppConstants", "User", "$state", "Film", "Web"];
-    function DashboardCtrl(AppConstants, User, $state, Film, Web) {
+    DashboardCtrl.$inject = ["AppConstants", "User", "$state", "Film", "Web", "Blog"];
+    function DashboardCtrl(AppConstants, User, $state, Film, Web, Blog) {
         'ngInject';
 
         _classCallCheck(this, DashboardCtrl);
@@ -45749,9 +45841,11 @@ var DashboardCtrl = function () {
         this._User = User;
         this._Film = Film;
         this._Web = Web;
+        this._Blog = Blog;
         this._$state = $state;
         this.films = [];
         this.websites = [];
+        this.blogs = [];
 
         this.logout = User.logout.bind(User);
     }
@@ -45768,22 +45862,12 @@ var DashboardCtrl = function () {
             this._Web.get().then(function (result) {
                 _this.websites = result;
             });
-        }
-        // submitForm() {
-        //   this.isSubmitting = true;
-        //   this._Post.addPost(this.formData).then(
-        //     () => {
-        //       this.formData = {};
-        //       this.isSubmitting = false;
-        //       this._$state.go(this._$state.$current, null, { reload: true });
-        //     },
-        //     (err) => {
-        //       this.isSubmitting = false;
-        //       this.errors = err.data.errors;
-        //     }
-        //   )
-        // }
 
+            this._Blog.get().then(function (result) {
+                _this.blogs = result;
+                console.log(_this.blogs);
+            });
+        }
     }, {
         key: 'deleteProject',
         value: function deleteProject(type, slug) {
@@ -45801,6 +45885,12 @@ var DashboardCtrl = function () {
                 }, function (err) {
                     _this2.errors = err.data.errors;
                 });
+            } else if (type == 'blog') {
+                this._Blog.destroy(slug).then(function () {
+                    _this2._$state.go(_this2._$state.$current, null, { reload: true });
+                }, function (err) {
+                    _this2.errors = err.data.errors;
+                });
             } else {
                 console.log('not recognizing film or web project');
             }
@@ -45812,7 +45902,7 @@ var DashboardCtrl = function () {
 
 exports.default = DashboardCtrl;
 
-},{}],101:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45841,57 +45931,67 @@ dashboardModule.controller('DashboardCtrl', _dashboard4.default);
 
 exports.default = dashboardModule;
 
-},{"./dashboard.config":99,"./dashboard.controller":100,"angular":90}],102:[function(require,module,exports){
+},{"./dashboard.config":102,"./dashboard.controller":103,"angular":90}],105:[function(require,module,exports){
 'use strict';
 
 EditorConfig.$inject = ["$stateProvider"];
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 function EditorConfig($stateProvider) {
-  'ngInject';
+    'ngInject';
 
-  $stateProvider.state('app.editor', {
-    url: '/editor',
-    params: {
-      type: null,
-      slug: null
-    },
-    controller: 'EditorCtrl',
-    controllerAs: '$ctrl',
-    templateUrl: 'editor/editor.html',
-    title: 'Editor',
-    resolve: {
-      project: ["Web", "Film", "User", "$state", "$stateParams", function project(Web, Film, User, $state, $stateParams) {
-        if ($stateParams.type == 'website') {
-          if ($stateParams.slug) {
-            return Web.getOne($stateParams.slug).then(function (project) {
-              return project;
-            }, function (err) {
-              return err;
-            });
-          } else {
-            return null;
-          }
-        } else if ($stateParams.type == 'film') {
-          if ($stateParams.slug) {
-            return Film.getOne($stateParams.slug).then(function (project) {
-              return project;
-            }, function (err) {
-              return err;
-            });
-          } else {
-            return null;
-          }
+    $stateProvider.state('app.editor', {
+        url: '/editor',
+        params: {
+            type: null,
+            slug: null
+        },
+        controller: 'EditorCtrl',
+        controllerAs: '$ctrl',
+        templateUrl: 'editor/editor.html',
+        title: 'Editor',
+        resolve: {
+            project: ["Web", "Film", "Blog", "User", "$state", "$stateParams", function project(Web, Film, Blog, User, $state, $stateParams) {
+                if ($stateParams.type == 'website') {
+                    if ($stateParams.slug) {
+                        return Web.getOne($stateParams.slug).then(function (project) {
+                            return project;
+                        }, function (err) {
+                            return err;
+                        });
+                    } else {
+                        return null;
+                    }
+                } else if ($stateParams.type == 'film') {
+                    if ($stateParams.slug) {
+                        return Film.getOne($stateParams.slug).then(function (project) {
+                            return project;
+                        }, function (err) {
+                            return err;
+                        });
+                    } else {
+                        return null;
+                    }
+                } else if ($stateParams.type == 'blog') {
+                    if ($stateParams.slug) {
+                        return Blog.getOne($stateParams.slug).then(function (project) {
+                            return project;
+                        }, function (err) {
+                            return err;
+                        });
+                    } else {
+                        return null;
+                    }
+                }
+            }]
         }
-      }]
-    }
-  });
+    });
 };
 
 exports.default = EditorConfig;
 
-},{}],103:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -45903,8 +46003,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var EditorCtrl = function () {
-  EditorCtrl.$inject = ["$state", "Web", "Film", "project", "$stateParams"];
-  function EditorCtrl($state, Web, Film, project, $stateParams) {
+  EditorCtrl.$inject = ["$state", "Web", "Film", "Blog", "project", "$stateParams"];
+  function EditorCtrl($state, Web, Film, Blog, project, $stateParams) {
     'ngInject';
 
     _classCallCheck(this, EditorCtrl);
@@ -45913,11 +46013,16 @@ var EditorCtrl = function () {
     this._$stateParams = $stateParams;
     this._Web = Web;
     this._Film = Film;
+    this._Blog = Blog;
     this.type = $stateParams.type;
 
     if (!project) {
-      this.project = {};
-      this.project.listOfTechnologies = [];
+      if (this.type == 'website') {
+        this.project = {};
+        this.project.listOfTechnologies = [];
+      } else {
+        this.project = {};
+      }
     } else {
       this.project = project;
     }
@@ -45964,6 +46069,13 @@ var EditorCtrl = function () {
           _this.isSubmitting = false;
           _this.errors = err.data.errors;
         });
+      } else if (this.type == 'blog') {
+        this._Blog.save(this.project).then(function (newProject) {
+          _this._$state.go('app.dashboard');
+        }, function (err) {
+          _this.isSubmitting = false;
+          _this.errors = err.data.errors;
+        });
       }
     }
   }]);
@@ -45973,7 +46085,7 @@ var EditorCtrl = function () {
 
 exports.default = EditorCtrl;
 
-},{}],104:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -46007,7 +46119,7 @@ editorModule.controller('EditorCtrl', _editor4.default);
 
 exports.default = editorModule;
 
-},{"./editor.config":102,"./editor.controller":103,"angular":90}],105:[function(require,module,exports){
+},{"./editor.config":105,"./editor.controller":106,"angular":90}],108:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -46028,7 +46140,7 @@ var filtersModule = _angular2.default.module('app.filters', []).filter('trusted'
 
 exports.default = filtersModule;
 
-},{"angular":90}],106:[function(require,module,exports){
+},{"angular":90}],109:[function(require,module,exports){
 'use strict';
 
 HomeConfig.$inject = ["$stateProvider"];
@@ -46049,7 +46161,7 @@ function HomeConfig($stateProvider) {
 
 exports.default = HomeConfig;
 
-},{}],107:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -46069,7 +46181,7 @@ HomeCtrl.$inject = ["AppConstants"];
 
 exports.default = HomeCtrl;
 
-},{}],108:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -46098,7 +46210,7 @@ homeModule.controller('HomeCtrl', _home4.default);
 
 exports.default = homeModule;
 
-},{"./home.config":106,"./home.controller":107,"angular":90}],109:[function(require,module,exports){
+},{"./home.config":109,"./home.controller":110,"angular":90}],112:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -46125,7 +46237,7 @@ var AppFooter = {
 
 exports.default = AppFooter;
 
-},{}],110:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -46150,7 +46262,7 @@ var AppHeader = {
 
 exports.default = AppHeader;
 
-},{}],111:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -46181,7 +46293,7 @@ layoutModule.component('appFooter', _footer2.default);
 
 exports.default = layoutModule;
 
-},{"./footer.component":109,"./header.component":110,"angular":90}],112:[function(require,module,exports){
+},{"./footer.component":112,"./header.component":113,"angular":90}],115:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -46210,7 +46322,7 @@ loginModule.controller('LoginCtrl', _login4.default);
 
 exports.default = loginModule;
 
-},{"./login.config":113,"./login.controller":114,"angular":90}],113:[function(require,module,exports){
+},{"./login.config":116,"./login.controller":117,"angular":90}],116:[function(require,module,exports){
 'use strict';
 
 LoginConfig.$inject = ["$stateProvider"];
@@ -46231,7 +46343,7 @@ function LoginConfig($stateProvider) {
 
 exports.default = LoginConfig;
 
-},{}],114:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -46281,7 +46393,94 @@ var LoginCtrl = function () {
 
 exports.default = LoginCtrl;
 
-},{}],115:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Blog = function () {
+  function Blog($http, $state, $q) {
+    _classCallCheck(this, Blog);
+
+    this._$http = $http;
+    this._$state = $state;
+    this._$q = $q;
+  }
+
+  _createClass(Blog, [{
+    key: 'get',
+    value: function get() {
+      var deferred = this._$q.defer();
+
+      this._$http({
+        url: '/blogs/all',
+        method: 'GET'
+      }).then(function (res) {
+        deferred.resolve(res.data);
+      }, function (err) {
+        return deferred.reject(err);
+      });
+
+      return deferred.promise;
+    }
+  }, {
+    key: 'getOne',
+    value: function getOne(slug) {
+      var deferred = this._$q.defer();
+
+      this._$http({
+        url: '/blogs/blog/' + slug,
+        method: 'GET'
+      }).then(function (res) {
+        console.log('getOne', res.data);
+        deferred.resolve(res.data);
+      }, function (err) {
+        deferred.reject(err);
+      });
+
+      return deferred.promise;
+    }
+  }, {
+    key: 'destroy',
+    value: function destroy(slug) {
+      return this._$http({
+        url: '/blogs/blog/' + slug,
+        method: 'DELETE'
+      });
+    }
+  }, {
+    key: 'save',
+    value: function save(project) {
+      var request = {};
+
+      if (project._id) {
+        request.url = '/blogs/blog/' + project._id;
+        request.method = 'PUT';
+      } else {
+        request.url = '/blogs/entry';
+        request.method = 'POST';
+      }
+
+      request.data = project;
+
+      return this._$http(request).then(function (res) {
+        res.data.project;
+      });
+    }
+  }]);
+
+  return Blog;
+}();
+
+exports.default = Blog;
+
+},{}],119:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -46367,7 +46566,7 @@ var Film = function () {
 
 exports.default = Film;
 
-},{}],116:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -46394,6 +46593,10 @@ var _web = require('./web.service');
 
 var _web2 = _interopRequireDefault(_web);
 
+var _blog = require('./blog.service');
+
+var _blog2 = _interopRequireDefault(_blog);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var servicesModule = _angular2.default.module('app.services', []);
@@ -46408,9 +46611,11 @@ servicesModule.service('Film', _film2.default);
 
 servicesModule.service('Web', _web2.default);
 
+servicesModule.service('Blog', _blog2.default);
+
 exports.default = servicesModule;
 
-},{"./film.service":115,"./jwt.service":117,"./user.service":118,"./web.service":119,"angular":90}],117:[function(require,module,exports){
+},{"./blog.service":118,"./film.service":119,"./jwt.service":121,"./user.service":122,"./web.service":123,"angular":90}],121:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -46454,7 +46659,7 @@ var JWT = function () {
 
 exports.default = JWT;
 
-},{}],118:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -46506,7 +46711,7 @@ var User = function () {
 
 exports.default = User;
 
-},{}],119:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {

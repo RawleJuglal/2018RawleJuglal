@@ -1,21 +1,27 @@
 class EditorCtrl {
-  constructor($state, Web, Film, project, $stateParams) {
+  constructor($state, Web, Film, Blog, project, $stateParams) {
     'ngInject';
     
     this._$state = $state;
     this._$stateParams = $stateParams;
     this._Web = Web;
     this._Film = Film;
+    this._Blog = Blog;
     this.type = $stateParams.type;
 
     if(!project) {
-    	this.project = {
+      if(this.type == 'website') {
+        this.project = {
 
-    	}
-      this.project.listOfTechnologies = [];
+          }
+        this.project.listOfTechnologies = [];
+      } else {
+        this.project = {}
+      }
     } else {
-    	this.project = project;
+      this.project = project
     }
+    
   }  
 
   back() {
@@ -50,6 +56,16 @@ class EditorCtrl {
       this._Film.save(this.project).then(
         (newProject) => {
           this._$state.go('app.dashboard');
+        },
+        (err) => {
+          this.isSubmitting = false;
+          this.errors = err.data.errors;
+        }
+      )
+    } else if (this.type == 'blog') {
+      this._Blog.save(this.project).then(
+        (newProject) => {
+          this._$state.go('app.dashboard')
         },
         (err) => {
           this.isSubmitting = false;

@@ -1,6 +1,7 @@
 let mongoose = require('mongoose');
+let Schema = mongoose.Schema;
 
-let WebProjectSchema = new mongoose.Schema({
+let WebProjectSchema = Schema({
     title:String,
     startDate:Date,
     endDate: Date,
