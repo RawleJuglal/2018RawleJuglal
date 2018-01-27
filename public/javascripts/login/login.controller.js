@@ -11,7 +11,6 @@ class LoginCtrl {
     //when html form clicks submit
   submitForm () {
     this.isSubmitting = true;
-    console.log('formData', this.formData); 
     this._User.attemptAuth(this.formData).then(
         (res) => {
           this.isSubmitting = false;

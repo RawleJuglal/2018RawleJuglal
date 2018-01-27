@@ -47,7 +47,7 @@ a {
 }
 
 .steel-bg{
-	background-color:#0A1612;;
+	background-color:#0A1612;
 }
 
 .denim{
@@ -64,6 +64,12 @@ a {
 
 .marigold-bg{
 	background-color: #F7CE3E;
+}
+
+.shadow-inset{
+	-moz-box-shadow:    inset 0 0 10px #0A1612;
+   -webkit-box-shadow: inset 0 0 10px #0A1612;
+   box-shadow:         inset 0 0 10px #0A1612;
 }
 
 
@@ -186,7 +192,7 @@ a {
 
 /*Editor Styles*/
 
-.editor-container{
+.editor-container, .comment-container{
 	min-height: 100vh;
 }
 
@@ -207,4 +213,8 @@ a {
 .vid-container{
 	overflow: hidden;
 	max-height: 600px;
+}
+
+.border-marigold{
+	border-color: #F7CE3E;
 }

@@ -5,7 +5,7 @@ let mongoose = require('mongoose');
 let Blog = mongoose.model('Blog');
 
 router.param('blog_id', function(req, res, next, id) {
-	var query = Blog.findOne({_id:id});
+	var query = Blog.findOne({_id:id}).populate('comments');
 
 	query.exec(function(err, blog){
 		if(err){return next(err)}
@@ -21,10 +21,14 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/all', function(req, res, next) {
-	Blog.find(function(err, blogs){
-		if(err){return next(err);}
+	var query = Blog.find().populate('comments');
+
+	query.exec(function(err, blogs){
+		if(err){return next(err)}
+		if(!blogs){return next(new Error('Can\'t find comment'))}
+
 		res.json(blogs);
-	});
+	})
 });
 
 router.post('/entry', function(req, res, next) {

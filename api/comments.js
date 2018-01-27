@@ -69,12 +69,13 @@ router.route('/:blog_id/comment/:comment_id')
 		next(new Error('not implemented'));
 	})
 	.delete(function(req, res, next){
+		console.log(req.data);
 		Comment.findByIdAndRemove(req.params.comment_id, function(err, results){
 			if(err){return next(err);}
 			console.log(results);
 		});
 
-		Blog.findByIdAndUpdate(req.params.blog_id, req.body, {
+		Blog.findByIdAndUpdate(req.params.blog_id, req.data, {
 			overwrite:true,
 			new:true
 		}, (err, response) => {

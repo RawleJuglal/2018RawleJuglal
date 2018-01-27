@@ -49,6 +49,7 @@ export default class Blog {
   }
 
   save(project) {
+    console.log('in blog service');
     let request = {};
 
     if(project._id) {
@@ -62,7 +63,7 @@ export default class Blog {
     request.data = project;
 
     return this._$http(request).then((res) => {
-      res.data.project
+      return res.data.project
     });
   }
 }

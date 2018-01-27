@@ -31,7 +31,6 @@ class DashboardCtrl {
          this._Blog.get().then(
             (result) => {
                 this.blogs = result;
-                console.log(this.blogs);
             }
         )
      }
