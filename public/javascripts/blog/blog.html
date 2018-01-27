@@ -1,0 +1,92 @@
+
+<div class='d-none d-md-block vid-container'>
+	<video id='blog-vid' ng-src='https://res.cloudinary.com/relentlessrawle/video/upload/v1516732424/Blog_Vid_hmwlrx.mp4' autoplay loop muted></video>
+</div>
+<div class='d-md-none'>
+	<img class='img-fluid' ng-src='https://res.cloudinary.com/relentlessrawle/image/upload/v1516741513/PhoenixVid_jwmo2v.jpg'>
+</div>
+<div class='container-fluid screen-bg'>
+	<div class='row'>
+		<div class='col-12 text-center'>
+			<h2 class='d-md-none marigold'>Rawle's Coaching Journey</h2>
+			<h2 class='display-1 d-none d-md-block marigold'>Rawle's Coaching Journey</h2>
+		</div><!--End of col-12-->
+	</div><!--End of row-->
+	<div class='row pb-3' ng-repeat='blog in $ctrl.blogs'>
+		<div class='col-12'>
+			<div class='card border-marigold'>
+				<div class='card-header'>
+					<div class='row'>
+						<div class='col-3 col-md-2'>
+							<img class='img-fluid' ng-src='https://res.cloudinary.com/relentlessrawle/image/upload/v1516747302/whistle_yhdell.svg'>
+						</div><!--End of col-md-2-->
+						<div class='col-9 col-md-7'>
+							<h3 class='d-sm-none denim'>{{blog.title}}</h3>
+							<h3 class='h1 pt-3 d-none d-sm-block d-md-none denim'>{{blog.title}}</h3>
+							<h3 class='display-4 pt-3 d-none d-md-block d-xl-none denim'>{{blog.title}}</h3>
+							<h3 class='display-1 pt-3 d-none d-xl-block denim'>{{blog.title}}</h3>
+						</div><!--End of col-md-7-->
+						<div class='col-12 col-md-3'>
+							<p class='d-sm-none denim'>{{blog.publishDate | date:'mediumDate'}}</p>
+							<p class='h4 d-none d-sm-block d-md-none denim'>{{blog.publishDate | date:'mediumDate'}}</p>
+							<p class='h4 d-none d-md-block d-lg-none pt-5 denim'>{{blog.publishDate | date:'mediumDate'}}</p>
+							<p class='h4 d-none d-lg-block d-xl-none pt-4 denim'>{{blog.publishDate | date:'mediumDate'}}</p>
+							<p class='h2 d-none d-xl-block pt-5 denim'>{{blog.publishDate | date:'mediumDate'}}</p>
+						</div><!--End of col-md-3-->
+					</div><!--End of row-->
+				</div><!--End of card-header-->
+				<div class='card-body'>
+					<p class='card-text denim d-sm-none'>{{blog.body}}</p>
+					<p class='card-text h3 denim d-none d-sm-block d-md-none'>{{blog.body}}</p>
+					<p class='card-text h1 denim d-none d-md-block'>{{blog.body}}</p>
+				</div><!--End of card body-->
+				<div class='card-footer'>
+					<div class='row'>
+						<div class='col-12'>
+							<a class='float-right view-link' data-toggle='collapse' data-target="#commentDiv" role="button" aria-expanded="false" aria-controls="commentDiv"><u><span class='h4'><i class="fa fa-comments" aria-hidden="true"></i> View Comments ({{blog.comments.length}})</span></u></a>
+						</div><!--End of col-12-->
+						<div class='col-12'>
+							<div class="collapse" id="commentDiv">
+							  <div class="card card-body denim-bg mb-2 shadow-inset" ng-repeat='comment in blog.comments'>
+							    	<p class='card-title screen h3'>{{comment.username}}</p>
+							    	<p class='card-text screen'>{{comment.comment}}</p> 
+							  </div><!--End of card-body-->
+							</div><!--End of commentDiv-->
+						</div><!--End of col-12-->
+					</div><!--End of row-->			
+				</div><!--End of card footer-->
+			</div><!--End of card-->
+		</div><!--End of col-12-->
+		<div class='col-12'>
+			<form class='steel-bg mt-1 pt-3 pl-2 pr-2 pb-2 rounded-bottom' ng-submit="$ctrl.submitForm(blog._id)">
+				<fieldset class='screen-bg p-1' ng-disabled='$ctrl.isSubmitting'>
+					<fieldset class='text-center'>
+						<p class='h1 marigold'>Add a Comment</p>
+						<p class='marigold'>Any abusive criticism will be deleted, think before you post</p>
+					</fieldset>
+					<fieldset class='screen-bg p-2'>
+					  		<fieldset class='form-group'>
+					  			<div class="input-group input-group-lg mb-3">
+								  <input type="text" class="form-control form-control-sm denim" placeholder="Username (optional)" 
+								  ng-model="$ctrl.formData.username"
+								  aria-label="username" aria-describedby="person-icon">
+								  <div class="input-group-append">
+								    <span class="input-group-text" id="person-icon"><i class='fa fa-user' aria-hidden="true"></i></span>
+								  </div>
+								</div>
+					  		</fieldset>
+		                    <fieldset class='form-group'>
+								  	<label class='sr-only denim h3' for='commentBody'>Comment</label>
+									<textarea class='form-control' type="text" id='projectDescription' ng-model='$ctrl.formData.comment' rows='3'></textarea>
+					  		</fieldset>
+		                        <!-- button will use auth.controller.js var stored in title
+		                         which it receives from auth.config.js -->
+		                        <button class="btn btn-sm btn-light float-right  bg-screen denim-btn" type="submit">
+		                        	Submit
+		                        </button>
+					  </fieldset>
+				</fieldset>
+			</form>
+		</div><!--End of col-12-->
+	</div><!--End of row-->
+</div><!--End of container-fluid-->

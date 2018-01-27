@@ -95,4 +95,26 @@
 			</div><!--End of row-->
 		</fieldset>
 	</form>
+
+	<form ng-submit='$ctrl.submitForm()' ng-show="$ctrl.type == 'blog'">
+		<fieldset class='screen-bg p-5' ng-disabled='$ctrl.isSubmitting'>
+			<div class='row p-3'>
+				<div class='col-12 col-xl-5'>
+					<div class='form-group'>
+						<label class='denim h3' for='projectTitle'>Title</label>
+						<input class='form-control' type="text" id='projectTitle' ng-model='$ctrl.project.title'>
+					</div><!--End of form-group-->
+					<div class='form-group'>
+						<label class='denim h3' for='projectDescription'>Description</label>
+						<textarea class='form-control' type="text" id='projectDescription' ng-model='$ctrl.project.body' rows='6'></textarea>
+					</div><!--End of form-group-->
+				</div><!--End of col-xl-5-->
+			</div><!--End of row-->
+			<div class='row'>
+				<div class='col-12'>
+					<button class='mr-5 btn btn-lg float-right bg-screen denim-btn' ng-click='$ctrl.submit()'>Save</button>
+				</div><!--End of col-12-->
+			</div><!--End of row-->
+		</fieldset>
+	</form>
 </div><!--End of steel-bg-->

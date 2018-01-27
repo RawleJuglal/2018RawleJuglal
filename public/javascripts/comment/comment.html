@@ -1,0 +1,23 @@
+<div class='container-fluid marigold-bg comment-container'>
+	<div class='row'>
+		<div class='col-12 col-md-8 offset-md-2'>
+			<div class="card denim-bg shadow-inset m-2" ng-repeat="comment in $ctrl.blog.comments">
+				<div class='card-header'>
+					<div class='row'>
+						<div class='col-9'>
+							<h3 class='card-title screen'>{{comment.username}}</h3>
+						</div><!--End of col-9-->
+						<div class='col-3'>
+							<button type="button" class="close float-right marigold" aria-label="Close" ng-click="$ctrl.deleteComment($ctrl.blog._id, comment._id)">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div><!--End of col-3-->
+					</div><!--End of row-->
+				</div><!--End of card-header-->
+			  	<div class="card-body">
+			    	<p class='care-text screen'>{{comment.comment}}</p>
+			  	</div>
+			</div><!--End of card-->
+		</div><!--End of offset-md-2-->
+	</div><!--End of row-->
+</div>

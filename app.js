@@ -11,11 +11,15 @@ let mongoUri = '';
 require('./models/Users');
 require('./models/Webprojects');
 require('./models/Filmprojects');
+require('./models/Blogs');
+require('./models/Comments');
 require('./config/passport');
 
 let users = require('./api/users');
 let webprojects = require('./api/webprojects');
 let filmprojects = require('./api/filmprojects');
+let blogs = require('./api/blogs');
+let comments = require('./api/comments');
 let index = require('./routes/index');
 let vendors = require('./routes/vendors');
 
@@ -60,6 +64,8 @@ app.use('/lib', vendors);
 app.use('/users', users);
 app.use('/webprojects', webprojects);
 app.use('/filmprojects', filmprojects);
+app.use('/blogs', blogs);
+app.use('/comments', comments);
 app.use('/dist', express.static(__dirname + '/build'));
 
 

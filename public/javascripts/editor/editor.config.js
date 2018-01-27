@@ -13,7 +13,7 @@ function EditorConfig($stateProvider) {
     templateUrl: 'editor/editor.html',
     title: 'Editor',
     resolve: {
-    	project: function(Web, Film,  User, $state, $stateParams) {
+    	project: function(Web, Film, Blog, User, $state, $stateParams) {
     		if($stateParams.type == 'website') {
     			if($stateParams.slug) {
 		    		return Web.getOne($stateParams.slug).then(
@@ -40,8 +40,20 @@ function EditorConfig($stateProvider) {
     			} else {
     				return null;
     			}
-    		}
-	    	
+    		} else if($stateParams.type == 'blog') {
+                if($stateParams.slug) {
+                    return Blog.getOne($stateParams.slug).then(
+                        (project) => {
+                            return project;
+                        },
+                        (err) => {
+                            return err;
+                        }
+                    )
+                } else {
+                    return null;
+                }
+            }	    	
 	    }
     }
   });

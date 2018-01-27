@@ -1,6 +1,7 @@
 let mongoose = require('mongoose');
+let Schema = mongoose.Schema;
 
-let FilmProjectSchema = new mongoose.Schema({
+let FilmProjectSchema = Schema({
     title:String,
     publishDate: Date,
     description: String,
