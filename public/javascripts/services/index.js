@@ -15,4 +15,10 @@ servicesModule.service('Film', FilmService);
 import WebService from './web.service';
 servicesModule.service('Web', WebService);
 
+import BlogService from './blog.service';
+servicesModule.service('Blog', BlogService);
+
+import CommentService from './comment.service';
+servicesModule.service('Comment', CommentService);
+
 export default servicesModule;
