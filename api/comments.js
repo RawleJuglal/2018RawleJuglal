@@ -32,6 +32,13 @@ router.get('/', function(req, res, next) {
 	res.json({message: 'You are in the comments api routes'})
 });
 
+router.get('/all', function(req, res, next) {
+	Comment.find(function(err, comments){
+		if(err){return next(err);}
+		res.json(comments);
+	});
+});
+
 router.post('/:blog_id/comment/entry', function(req, res, next){
 	if(!req.body.comment){
 		return res.status(400).json({message: 'Please fill out all fields'})
@@ -69,13 +76,14 @@ router.route('/:blog_id/comment/:comment_id')
 		next(new Error('not implemented'));
 	})
 	.delete(function(req, res, next){
-		console.log(req.data);
 		Comment.findByIdAndRemove(req.params.comment_id, function(err, results){
 			if(err){return next(err);}
 			console.log(results);
 		});
 
-		Blog.findByIdAndUpdate(req.params.blog_id, req.data, {
+		req.blog.comments = req.blog.comments.filter((comment) => comment._id != req.params.comment_id);
+
+		Blog.findByIdAndUpdate(req.params.blog_id, req.blog, {
 			overwrite:true,
 			new:true
 		}, (err, response) => {
