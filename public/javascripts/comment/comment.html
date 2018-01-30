@@ -1,5 +1,10 @@
 <div class='container-fluid marigold-bg comment-container'>
 	<div class='row'>
+		<div class='col-12 p-3'>
+			<button class='btn btn-lg screen-bg denim-btn pull-right' ng-click="$ctrl.back()">Back</button>
+		</div><!--End of col-12-->
+	</div><!--End of row-->
+	<div class='row'>
 		<div class='col-12 col-md-8 offset-md-2'>
 			<div class="card denim-bg shadow-inset m-2" ng-repeat="comment in $ctrl.blog.comments">
 				<div class='card-header'>

@@ -14,8 +14,11 @@ class CommentCtrl {
         }
     }
 
+    back() {
+        this._$state.go('app.dashboard');
+      }
+  
     deleteComment(blogID, commentID){
-    	this.blog.comments = this.blog.comments.filter((comment) => comment._id != commentID);
     	this._Comment.destroy(blogID, commentID).then(
     		() => {
                   this._$state.go(this._$state.$current, null, { reload: true });
